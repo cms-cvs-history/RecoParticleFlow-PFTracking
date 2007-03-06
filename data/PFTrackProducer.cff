@@ -1,0 +1,11 @@
+include "RecoParticleFlow/PFTracking/data/ElecPreId.cfi"
+include "TrackingTools/GsfTracking/data/GsfElectrons.cff"
+module gsfElCandidates =  ckfTrackCandidates from "RecoTracker/CkfPattern/data/CkfTrackCandidates.cfi"
+replace gsfElCandidates.TrajectoryBuilder    = "CkfElectronTrajectoryBuilder"
+replace gsfElCandidates.SeedProducer = "elecpreid"
+replace gsfElCandidates.SeedLabel = "SeedsForGsf"
+module gsfPFtracks = GsfElectrons from "TrackingTools/GsfTracking/data/GsfElectronFit.cfi"
+replace gsfPFtracks.src ="gsfElCandidates"
+replace gsfPFtracks.TrajectoryInEvent = true
+include "RecoParticleFlow/PFTracking/data/pfTrackElec.cfi"
+sequence TkBasedId={elecpreid,gsfElCandidates,gsfPFtracks,pfelectk}
