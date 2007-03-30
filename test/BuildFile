@@ -1,0 +1,11 @@
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=SimDataFormats/TrackingAnalysis>
+<use name=SimTracker/TrackAssociation>
+<use name=DataFormats/ParticleFlowReco>
+<use name=root>
+<flags SEAL_PLUGIN_NAME="testRecoParticleFlowPFTracking">
+<library file=*.cc name=testRecoParticleFlowPFTracking>
+</library>
+

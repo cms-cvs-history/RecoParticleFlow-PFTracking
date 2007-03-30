@@ -1,0 +1,4 @@
+include "SimGeneral/TrackingAnalysis/data/trackingtruth.cfi"
+include "SimTracker/TrackAssociation/data/TrackAssociatorByHits.cfi" 
+include "MagneticField/Engine/data/volumeBasedMagneticField.cfi"
+include "RecoParticleFlow/PFTracking/test/TestPreId.cfi"
