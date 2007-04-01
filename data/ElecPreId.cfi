@@ -1,13 +1,21 @@
 module elecpreid = GoodSeedProducer{
- string Fitter = "KFFittingSmoother"
+ string Fitter = "GsfTrajectoryFitter"
+ string Smoother = "GsfTrajectorySmoother"
  string Propagator  = "PropagatorWithMaterial"
- string TTRHBuilder = "WithTrackAngle"
- string RecTrackCandidateModuleLabel ="ckfTrackCandidates"
- string RecTrackModuleLabel="ctfWithMaterialTracks"
+
  string PreGsfLabel = "SeedsForGsf"
  string PreCkfLabel = "SeedsForCkf"
+
+
+ InputTag RefitModuleLabel= TrackRefitter:
  InputTag PFEcalClusterLabel = particleFlowCluster:ECAL
  InputTag PFPSClusterLabel = particleFlowCluster:PS	
+
+ int32 NHitsInSeed =3
+ double ClusterThreshold=0.9
+
+ string	 EtaMap="RecoParticleFlow/PFProducer/data/resmap_ECAL_eta.dat"
+ string	 PhiMap="RecoParticleFlow/PFProducer/data/resmap_ECAL_phi.dat"
  untracked bool ProduceCkfPFTracks=true
  string ThresholdFile = "Threshold.dat"
 }
