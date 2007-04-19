@@ -1,6 +1,6 @@
 module elecpreid = GoodSeedProducer{
- string Fitter = "GsfTrajectoryFitter"
- string Smoother = "GsfTrajectorySmoother"
+ string Fitter = "GsfTrajectoryFitter_forPreId"
+ string Smoother = "GsfTrajectorySmoother_forPreId"
  string Propagator  = "PropagatorWithMaterial"
 
  string PreGsfLabel = "SeedsForGsf"
@@ -17,5 +17,5 @@ module elecpreid = GoodSeedProducer{
  string	 EtaMap="RecoParticleFlow/PFProducer/data/resmap_ECAL_eta.dat"
  string	 PhiMap="RecoParticleFlow/PFProducer/data/resmap_ECAL_phi.dat"
  untracked bool ProduceCkfPFTracks=true
- string ThresholdFile = "RecoParticleFlow/PFTracking/data/Threshold.dat"
+ string ThresholdFile = "Threshold.dat"
 }
