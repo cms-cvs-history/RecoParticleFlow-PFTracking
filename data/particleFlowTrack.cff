@@ -1,5 +1,5 @@
-include "RecoTracker/TrackProducer/data/RefitterWithMaterial.cff"
-replace TrackRefitter.TrajectoryInEvent = true
+module trackRefitter = TrackRefitter from "RecoTracker/TrackProducer/data/RefitterWithMaterial.cfi"
+replace trackRefitter.TrajectoryInEvent = true
 include "RecoParticleFlow/PFTracking/data/elecPreId.cff"
 include "TrackingTools/GsfTracking/data/CkfElectronCandidates.cff"
 

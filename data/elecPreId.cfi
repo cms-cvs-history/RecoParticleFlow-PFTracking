@@ -7,7 +7,7 @@ module elecPreId = GoodSeedProducer{
  string PreCkfLabel = "SeedsForCkf"
 
 
- InputTag RefitModuleLabel= TrackRefitter:
+ InputTag RefitModuleLabel= trackRefitter:
  InputTag PFEcalClusterLabel = particleFlowCluster:ECAL
  InputTag PFPSClusterLabel = particleFlowCluster:PS	
 
