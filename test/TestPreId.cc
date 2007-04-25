@@ -86,7 +86,7 @@ TestPreId::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    PFRecTrackCollection::const_iterator ipftrak;
    for (ipftrak=PfRTkColl.begin(); ipftrak!=PfRTkColl.end(); ipftrak++){
-     int itk=(*ipftrak).recTrackId();
+     int itk=(*ipftrak).trackId();
 
      TrackRef track(tkCollection, itk);
      try{ 
