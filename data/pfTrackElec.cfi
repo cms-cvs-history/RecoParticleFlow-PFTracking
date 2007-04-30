@@ -1,4 +1,4 @@
-module pfelectk = PFElecTkProducer{
+module pfTrackElec = PFElecTkProducer{
  string GsfTrackModuleLabel ="gsfPFtracks"
  string GsfTrackCandidateModuleLabel="gsfElCandidates"
  string Fitter = "GsfElectronFittingSmoother"

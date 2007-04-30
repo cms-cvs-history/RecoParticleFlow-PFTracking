@@ -9,6 +9,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -42,30 +43,39 @@ class PFTrackTransformer{
 
  
 
-  ///Produce PfRecTrack from a pair GsfTrack-Trajectory
-  reco::PFRecTrack  producePFtrackKf(Trajectory * traj,
-				     reco::GsfTrack *gtrack,
-				     reco::PFRecTrack::AlgoType_t,
-				     int index);
+/*   ///Produce PfRecTrack from a pair GsfTrack-Trajectory */
+/*   reco::PFRecTrack  producePFTrack(reco::PFRecTrack& pftrack, */
+/* 				   Trajectory * traj, */
+/* 				   const reco::Track& track, */
+/* 				   reco::PFRecTrack::AlgoType_t, */
+/* 				   int index); */
 
-  ///Produce PfRecTrack from a pair Track-Trajectory
-  reco::PFRecTrack  producePFtrackKf(Trajectory * traj,
-				     reco::Track *ktrack,
-				     reco::PFRecTrack::AlgoType_t,
-				     int index);
+
+/*   reco::PFRecTrack  producePFTrack(reco::PFRecTrack& pftrack, */
+/* 				   Trajectory * traj, */
+/* 				   const reco::TrackRef& trackref, */
+/* 				   reco::PFRecTrack::AlgoType_t, */
+/* 				   int index); */
+
+  /// Add points to a PFTrack. return false if a TSOS is invalid
+  bool addPoints(reco::PFRecTrack& pftrack, 
+		 const reco::Track& track,
+		 const Trajectory& traj ) const; 
+
 
   ///Utility for getting the TSOS in all the surface defined in PFGeometry
-  TrajectoryStateOnSurface getStateOnSurface(PFGeometry::Surface_t iSurf, 
-					     const TrajectoryStateOnSurface& tsos, 
-					     const Propagator* propagator, int& side);
+  TrajectoryStateOnSurface 
+    getStateOnSurface(PFGeometry::Surface_t iSurf, 
+		      const TrajectoryStateOnSurface& tsos, 
+		      const Propagator* propagator, int& side) const;
 
   ///Surface corresponding to the expected mazimum shower of the electron 
-  ReferenceCountingPointer<Surface> showerMaxSurface(float, bool,TSOS,int);
+  ReferenceCountingPointer<Surface> showerMaxSurface(float, 
+						     bool,
+						     TSOS,
+						     int) const;
 
  private:
-
-  /// Add to the PFRecTrack the points at ECAl , HCAL and beampipe
-  void addPoints(); 
 
   ///Forward analytical Propagator
   const AnalyticalPropagator *fwdPropagator;
@@ -73,14 +83,14 @@ class PFTrackTransformer{
   ///Backward analytical Propagator
   const AnalyticalPropagator *bkwdPropagator;
 
-  math::XYZTLorentzVector momClosest_;
-  math::XYZPoint posClosest_;
+/*   math::XYZTLorentzVector momClosest_; */
+/*   math::XYZPoint posClosest_; */
 
   ///PFRecTrack returned in methods producePFtrackKf
-  reco::PFRecTrack track_;
+  // reco::PFRecTrack track_;
 
   ///Trajectory propagated to the surfaces of PFGeometry
-  Trajectory *tj_;
+/*   Trajectory *tj_; */
 };
 
 #endif

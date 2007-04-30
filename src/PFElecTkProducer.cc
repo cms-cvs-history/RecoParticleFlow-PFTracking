@@ -58,8 +58,7 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
   LogDebug("PFElecTkProducer")<<"START event: "<<iEvent.id().event()
 			      <<" in run "<<iEvent.id().run();
-  std::vector<reco::PFRecTrack> pftracks;
-  pftracks.clear();
+
   //create the empty collections 
   auto_ptr< reco::PFRecTrackCollection > 
     gsfPFRecTrackCollection(new reco::PFRecTrackCollection);
@@ -72,20 +71,33 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
   //read collections of trajectories
   Handle<vector<Trajectory> > TrajectoryCollection;
  
-  
+
   if (trajinev_){
     iEvent.getByLabel(gsfTrackModule_,TrajectoryCollection); 
     reco::GsfTrackCollection gsftracks = *(gsfelectrons.product());
     vector<Trajectory> tjvec= *(TrajectoryCollection.product());
 
-    for (uint igsf=0; igsf<gsftracks.size();igsf++)
-      pftracks.push_back(pfTransformer_->
-			 producePFtrackKf(&(tjvec[igsf]),&(gsftracks[igsf]),
-					  reco::PFRecTrack::GSF,igsf));
-    
-    
-    for(uint ipf=0; ipf<pftracks.size();ipf++)
-      gsfPFRecTrackCollection->push_back(pftracks[ipf]);
+    for (uint igsf=0; igsf<gsftracks.size();igsf++) {
+      
+      reco::TrackRef dummyRef;
+
+      reco::PFRecTrack pftrack( gsftracks[igsf].charge(), 
+				reco::PFRecTrack::GSF, 
+				igsf, dummyRef );
+      
+      bool valid = pfTransformer_->addPoints( pftrack, 
+					      gsftracks[igsf] , 
+					      tjvec[igsf] );
+      if(valid)
+	gsfPFRecTrackCollection->push_back(pftrack);		
+      
+
+//       gsfPFRecTrackCollection->
+// 	push_back(pfTransformer_-> producePFtrack( &(tjvec[igsf]), 
+// 						   gsftracks[igsf],
+// 						   reco::PFRecTrack::GSF,
+// 						   igsf));    
+    }
     iEvent.put(gsfPFRecTrackCollection);
   }else LogError("PFEleTkProducer")<<"No trajectory in the events";
       

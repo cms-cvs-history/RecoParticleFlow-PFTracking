@@ -1,0 +1,41 @@
+es_module ElectronMaterialEffects_forPreId = GsfMaterialEffectsESProducer 
+{
+  string ComponentName = "ElectronMaterialEffects_forPreId"
+  double Mass = 0.000511
+  string MultipleScatteringUpdator = "MultipleScatteringUpdator"
+  string EnergyLossUpdator = "GsfBetheHeitlerUpdator"
+  string BetheHeitlerParametrization = "BetheHeitler_cdfmom_nC3_O5.par"
+  int32 BetheHeitlerCorrection = 2
+}
+
+es_module CloseComponentsMerger_forPreId = CloseComponentsTSOSMergerESProducer
+{
+  string ComponentName = "CloseComponentsMerger_forPreId"
+  int32 MaxComponents = 4
+  string DistanceMeasure = "KullbackLeiblerDistance"
+}
+
+es_module GsfTrajectoryFitter_forPreId = GsfTrajectoryFitterESProducer
+{
+  string ComponentName = "GsfTrajectoryFitter_forPreId"
+  string MaterialEffectsUpdator = "ElectronMaterialEffects_forPreId"
+  string GeometricalPropagator = "fwdAnalyticalPropagator"
+  string Merger = "CloseComponentsMerger_forPreId"
+}
+
+es_module GsfTrajectorySmoother_forPreId = GsfTrajectorySmootherESProducer
+{
+  string ComponentName = "GsfTrajectorySmoother_forPreId"
+  string MaterialEffectsUpdator = "ElectronMaterialEffects_forPreId"
+  string GeometricalPropagator = "bwdAnalyticalPropagator"
+  string Merger = "CloseComponentsMerger_forPreId"
+  double ErrorRescaling = 100.
+}
+
+module trackRefitter = TrackRefitter from "RecoTracker/TrackProducer/data/RefitterWithMaterial.cfi"
+replace trackRefitter.TrajectoryInEvent = true
+module elecpreid  = elecpreid from "RecoParticleFlow/PFTracking/data/elecPreId.cfi" 
+replace elecpreid.RefitModuleLabel = trackRefitter:
+#include "RecoParticleFlow/PFTracking/data/elecPreId_refit.cfi"
+sequence elecPreId={trackRefitter,elecpreid}
+
