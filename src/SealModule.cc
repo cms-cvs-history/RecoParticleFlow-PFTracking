@@ -1,4 +1,8 @@
+// <<<<<<< SealModule.cc
 
+// =======
+// #include "PluginManager/ModuleDef.h"
+// >>>>>>> 1.3
 #include "FWCore/Framework/interface/InputSourceMacros.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "RecoParticleFlow/PFTracking/interface/GoodSeedProducer.h"
