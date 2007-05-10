@@ -1,8 +1,0 @@
-module pfTrackElec = PFElecTkProducer{
- string GsfTrackModuleLabel ="gsfPFtracks"
- string GsfTrackCandidateModuleLabel="gsfElCandidates"
- string Fitter = "GsfElectronFittingSmoother"
- string Propagator = "fwdElectronPropagator"
- string TTRHBuilder = "WithTrackAngle"
- bool TrajInEvents = true
-}
