@@ -184,7 +184,7 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
 				       math::XYZTLorentzVector(p.x(),p.y(),p.z(),p.mag())));
     //    LogDebug("PFProducer")<<"beam pipe point "<<endl;
   
-  }
+  } else return false;
 
 
   //trajectory points
