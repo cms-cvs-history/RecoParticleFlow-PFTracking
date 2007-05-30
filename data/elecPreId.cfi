@@ -18,4 +18,5 @@ module elecpreid = GoodSeedProducer {
     string	 PhiMap="RecoParticleFlow/PFProducer/data/resmap_ECAL_phi.dat"
     untracked bool ProduceCkfPFTracks=true
     string ThresholdFile = "RecoParticleFlow/PFTracking/data/Threshold.dat"
+    string PSThresholdFile = "RecoParticleFlow/PFTracking/data/PSThreshold.dat"
 }
