@@ -37,5 +37,5 @@ replace trackRefitter.TrajectoryInEvent = true
 module elecpreid  = elecpreid from "RecoParticleFlow/PFTracking/data/elecPreId.cfi" 
 replace elecpreid.RefitModuleLabel = trackRefitter
 #include "RecoParticleFlow/PFTracking/data/elecPreId_refit.cfi"
-sequence elecPreId={trackRefitter,elecpreid}
+sequence elecPreId={}
 
