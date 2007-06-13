@@ -12,9 +12,9 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
-
 /// \brief Abstract
 /*!
 \author Michele Pioppi
@@ -28,9 +28,9 @@
  It also transform  all the tracks in the first PFRecTrack collection.
 */
 
-//namespace reco {
+
 class PFResolutionMap;
-// }
+
 
 class PFTrackTransformer;
 class TrajectoryFitter;
@@ -39,6 +39,8 @@ class TrackerGeometry;
 class TrajectoryStateOnSurface;
 class Propagator;
 class StraightLinePropagator;
+class TrackerHitAssociator;
+
 
 class GoodSeedProducer : public edm::EDProducer {
   typedef TrajectoryStateOnSurface TSOS;
@@ -54,6 +56,7 @@ class GoodSeedProducer : public edm::EDProducer {
       ///Find the bin in pt and eta
       int getBin(float,float);
       bool PSCorrEnergy(const TSOS, int ptbin);
+
 
       // ----------member data ---------------------------
 
@@ -111,5 +114,7 @@ class GoodSeedProducer : public edm::EDProducer {
 
       static PFResolutionMap* resMapEtaECAL_;
       static PFResolutionMap* resMapPhiECAL_;
+ 
+
 };
 #endif

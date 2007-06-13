@@ -173,7 +173,6 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
   if (posClosest.Rho() < PFGeometry::innerRadius(PFGeometry::BeamPipe)) {
     TSOS beamPipeTSOS = 
       getStateOnSurface(PFGeometry::BeamPipeWall, innerTSOS, 
-
 			bkwdPropagator_, side);
     if(!beamPipeTSOS.isValid() ) return false;
 
@@ -207,7 +206,6 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
    int ecalSide = 100;
    TSOS ecalTSOS = 
      getStateOnSurface(PFGeometry::ECALInnerWall, outerTSOS, 
-
 		       fwdPropagator_, ecalSide);
    if (!ecalTSOS.isValid()) return false; 
 
@@ -215,7 +213,6 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
    GlobalVector p=ecalTSOS.globalMomentum();
    pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::ECALEntrance,
 				      math::XYZPoint(v.x(), v.y(), v.z()),
-
 				      math::XYZTLorentzVector(p.x(),
 							      p.y(),
 							      p.z(),
@@ -248,7 +245,6 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
        pftrack.addPoint(dummyPS1); 
      }
      
-
      //layer 2
      TSOS ps2TSOS = 
        getStateOnSurface(PFGeometry::PS2Wall, outerTSOS, 

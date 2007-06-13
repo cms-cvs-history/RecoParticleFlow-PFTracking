@@ -8,7 +8,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
-
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -87,6 +86,7 @@ class PFTrackTransformer{
   ///StraightLinePropagator to propagate the Trajectory from
   ///ECAL to the max shower surface
   StraightLinePropagator *maxShPropagator_;
+
 
 };
 
