@@ -19,4 +19,8 @@ module elecpreid = GoodSeedProducer {
     untracked bool ProduceCkfPFTracks=true
     string ThresholdFile = "RecoParticleFlow/PFTracking/data/Threshold.dat"
     string PSThresholdFile = "RecoParticleFlow/PFTracking/data/PSThreshold.dat"
+    untracked bool UseTMVA = true
+    string TMVAMethod ="BDT method"
+    string Weights ="RecoParticleFlow/PFTracking/data/MVAnalysis_BDT.weights_h"
+    string TMVAThresholdFile ="RecoParticleFlow/PFTracking/data/TMVAThreshold.dat"
 }
