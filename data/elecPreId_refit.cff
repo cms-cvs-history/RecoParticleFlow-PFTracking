@@ -35,6 +35,6 @@ es_module GsfTrajectorySmoother_forPreId = GsfTrajectorySmootherESProducer
 module trackRefitter = TrackRefitter from "RecoTracker/TrackProducer/data/RefitterWithMaterial.cfi"
 replace trackRefitter.TrajectoryInEvent = true
 module elecpreid  = elecpreid from "RecoParticleFlow/PFTracking/data/elecPreId.cfi" 
-replace elecpreid.RefitModuleLabel = trackRefitter
+replace elecpreid.TkColList = {trackRefitter}
 sequence elecPreId={trackRefitter,elecpreid}
 
