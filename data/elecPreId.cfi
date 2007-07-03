@@ -7,7 +7,10 @@ module elecpreid = GoodSeedProducer {
     string PreCkfLabel = "SeedsForCkf"
     
     
-    InputTag RefitModuleLabel= ctfWithMaterialTracks
+   VInputTag TkColList={
+	ctfWithMaterialTracks:
+    }
+
     InputTag PFEcalClusterLabel = particleFlowCluster:ECAL
     InputTag PFPSClusterLabel = particleFlowCluster:PS	
     

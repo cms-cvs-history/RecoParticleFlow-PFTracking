@@ -12,9 +12,11 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+#include "TMVA/Reader.h"
+
+
 /// \brief Abstract
 /*!
 \author Michele Pioppi
@@ -28,9 +30,9 @@
  It also transform  all the tracks in the first PFRecTrack collection.
 */
 
-
+//namespace reco {
 class PFResolutionMap;
-
+// }
 
 class PFTrackTransformer;
 class TrajectoryFitter;
@@ -39,8 +41,6 @@ class TrackerGeometry;
 class TrajectoryStateOnSurface;
 class Propagator;
 class StraightLinePropagator;
-class TrackerHitAssociator;
-
 
 class GoodSeedProducer : public edm::EDProducer {
   typedef TrajectoryStateOnSurface TSOS;
@@ -56,8 +56,7 @@ class GoodSeedProducer : public edm::EDProducer {
       ///Find the bin in pt and eta
       int getBin(float,float);
       bool PSCorrEnergy(const TSOS, int ptbin);
-
-
+      void PSforTMVA(const TSOS);
       // ----------member data ---------------------------
 
       ///Vector of clusters of the PreShower
@@ -101,12 +100,13 @@ class GoodSeedProducer : public edm::EDProducer {
       ///vector of thresholds for different bins of eta and pt
       float thr[150];
       float thrPS[20];
+      float thrTMVA[15];
 
       // ----------access to event data
       edm::ParameterSet conf_;
       edm::InputTag pfCLusTagPSLabel_;
       edm::InputTag pfCLusTagECLabel_;
-      edm::InputTag refitLabel_;
+      std::vector<edm::InputTag> tracksContainers_;
 
       std::string fitterName_;
       std::string smootherName_;
@@ -114,7 +114,18 @@ class GoodSeedProducer : public edm::EDProducer {
 
       static PFResolutionMap* resMapEtaECAL_;
       static PFResolutionMap* resMapPhiECAL_;
- 
 
+      ///READER FOR TMVA
+      TMVA::Reader *reader;
+
+      ///VARIABLES NEEDED FOR TMVA
+      float eP,chi,eta,pt,nhit,dpt,chired,chiRatio;
+      float ps1En,ps2En,ps1chi,ps2chi;
+      ///USE OF TMVA 
+      bool useTmva_;
+
+      ///TMVA method
+      std::string metBarrel_;
+      std::string metEndcap_;
 };
 #endif
