@@ -1,0 +1,45 @@
+##SEEDS
+module  firstMixedSeeds =
+   globalMixedSeeds from "RecoTracker/TkSeedGenerator/data/GlobalMixedSeeds.cfi"
+replace firstMixedSeeds.RegionFactoryPSet.RegionPSet.ptMin=1.0
+
+##TRAJECTORY MEASUREMENT
+es_module firstMeasurementTracker =
+   MeasurementTracker from "RecoTracker/MeasurementDet/data/MeasurementTrackerESProducer.cfi"
+replace firstMeasurementTracker.ComponentName = "firstMeasurementTracker"
+replace firstMeasurementTracker.pixelClusterProducer = "siPixelClusters"
+replace firstMeasurementTracker.stripClusterProducer = "siStripClusters"
+
+##TRAJECTORY BUILDER
+es_module firstCkfTrajectoryBuilder =
+   CkfTrajectoryBuilder from "RecoTracker/CkfPattern/data/CkfTrajectoryBuilderESProducer.cfi"
+replace firstCkfTrajectoryBuilder.ComponentName = "firstCkfTrajectoryBuilder"
+replace firstCkfTrajectoryBuilder.MeasurementTrackerName = "firstMeasurementTracker"
+replace firstCkfTrajectoryBuilder.ptCut = 1.0
+replace firstCkfTrajectoryBuilder.maxLostHit = 0
+replace firstCkfTrajectoryBuilder.minimumNumberOfHits = 8
+
+
+##TRACK CANDIDATES
+module firstTrackCandidates =
+   ckfTrackCandidates from "RecoTracker/CkfPattern/data/CkfTrackCandidates.cfi"
+replace firstTrackCandidates.SeedProducer= "firstMixedSeeds"
+replace firstTrackCandidates.TrajectoryBuilder = "firstCkfTrajectoryBuilder"
+
+
+##TRACKS
+module firstWithMaterialTracks = 
+  ctfWithMaterialTracks from "RecoTracker/TrackProducer/data/CTFFinalFitWithMaterial.cfi"
+replace  firstWithMaterialTracks.src ="firstTrackCandidates"                                                                                                                                                  
+
+##VERTICES
+module firstPrimaryVerticesFromCTFTracks =
+  offlinePrimaryVerticesFromCTFTracks from "RecoVertex/PrimaryVertexProducer/data/OfflinePrimaryVerticesFromCTFTracks.cfi"
+replace firstPrimaryVerticesFromCTFTracks.TrackLabel = "firstWithMaterialTracks"
+
+sequence first ={
+    firstMixedSeeds
+    ,firstTrackCandidates
+    ,firstWithMaterialTracks
+    ,firstPrimaryVerticesFromCTFTracks
+}
