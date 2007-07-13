@@ -97,6 +97,7 @@ replace  thirdWithMaterialTracks.src ="thirdTrackCandidates"
 
 
 module thirdvtxFilt=VertexFilter{
+    bool VertexCut =true
     InputTag recTracks     = thirdWithMaterialTracks:
     InputTag recVertices   = offlinePrimaryVerticesFromCTFTracks:
     double DistFromVertex  = 0.3

@@ -99,6 +99,7 @@ replace  secondWithMaterialTracks.src ="secondTrackCandidates"
 
 
 module vtxFilt=VertexFilter{
+    bool VertexCut =true
     InputTag recTracks     = secondWithMaterialTracks:
     InputTag recVertices   = firstPrimaryVerticesFromCTFTracks:
     double DistFromVertex  = 0.3
