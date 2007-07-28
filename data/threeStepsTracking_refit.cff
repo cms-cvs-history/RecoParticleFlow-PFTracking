@@ -1,0 +1,12 @@
+include "RecoTracker/TkSeedingLayers/data/MixedLayerPairs.cfi"
+include "RecoTracker/TrackProducer/data/CTFFinalFitWithMaterial.cff"
+include "RecoVertex/Configuration/data/RecoVertex.cff"
+include "RecoTracker/TrackProducer/data/RefitterWithMaterial.cfi"
+replace TrackRefitter.TrajectoryInEvent=true
+include "RecoParticleFlow/PFTracking/data/first.cff"
+replace firstWithMaterialTracks.recTracks=TrackRefitter
+include "RecoParticleFlow/PFTracking/data/second.cff"
+include "RecoParticleFlow/PFTracking/data/third.cff"
+
+sequence threesteps= {TrackRefitter,first,second,third}
+
