@@ -1,5 +1,6 @@
 include "RecoParticleFlow/PFTracking/data/elecPreId_refit.cff"
 include "TrackingTools/GsfTracking/data/CkfElectronCandidates.cff"
+include "TrackingTools/GsfTracking/data/GsfElectrons.cff" 
 
 module gsfElCandidates =  ckfTrackCandidates from "RecoTracker/CkfPattern/data/CkfTrackCandidates.cfi"
 replace gsfElCandidates.TrajectoryBuilder    = "CkfElectronTrajectoryBuilder"

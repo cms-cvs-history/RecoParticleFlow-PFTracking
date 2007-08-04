@@ -1,0 +1,124 @@
+##HIT REMOVAL
+module thirdClusters = RemainingClusterProducer{
+    InputTag matchedRecHits    = secondStripRecHits:matchedRecHit
+    InputTag rphirecHits       = secondStripRecHits:rphiRecHit
+    InputTag stereorecHits     = secondStripRecHits:stereoRecHit
+    InputTag pixelHits         = secondPixelRecHits:
+    InputTag recTracks         = vtxFilt:
+    double DistanceCut         = 0.1
+}
+
+##TRACKER HITS
+    
+module thirdPixelRecHits =
+  siPixelRecHits from "RecoLocalTracker/SiPixelRecHits/data/SiPixelRecHits.cfi"
+replace thirdPixelRecHits.src="thirdClusters"
+
+
+module thirdStripRecHits = 
+  siStripMatchedRecHits from "RecoLocalTracker/SiStripRecHitConverter/data/SiStripRecHitConverter.cfi"
+replace thirdStripRecHits.ClusterProducer = "thirdClusters"
+
+    
+
+##SEEDS
+es_module thirdlayerpairs =  MixedLayerPairsESProducer {
+
+  string ComponentName = "ThirdLayerPairs"
+
+  vstring layerList = { "BPix1+BPix2", "BPix1+BPix3", "BPix2+BPix3",
+                        "BPix1+FPix1_pos", "BPix1+FPix1_neg", "BPix1+FPix2_pos", "BPix1+FPix2_neg",
+                        "BPix2+FPix1_pos", "BPix2+FPix1_neg", "BPix2+FPix2_pos", "BPix2+FPix2_neg",
+                        "FPix1_pos+FPix2_pos", "FPix1_neg+FPix2_neg",
+                        "FPix2_pos+TEC1_pos","FPix2_pos+TEC2_pos","TEC2_pos+TEC3_pos",
+                        "FPix2_neg+TEC1_neg","FPix2_neg+TEC2_neg","TEC2_neg+TEC3_neg"
+                        }
+
+  PSet BPix = {
+    string HitProducer = "thirdPixelRecHits"  
+    string TTRHBuilder = "TTRHBuilderWithoutAngle4MixedPairs" 
+    untracked bool useErrorsFromParam = true
+    double hitErrorRPhi = 0.0027  
+    double hitErrorRZ   = 0.0060 
+  }
+
+  PSet FPix = {
+    string HitProducer = "thirdPixelRecHits"  
+    string TTRHBuilder = "TTRHBuilderWithoutAngle4MixedPairs" 
+    untracked bool useErrorsFromParam = true
+    double hitErrorRPhi = 0.0051 
+    double hitErrorRZ   = 0.0036  
+  }
+
+  PSet TEC = {
+    InputTag matchedRecHits = thirdStripRecHits:matchedRecHit
+    string TTRHBuilder        =  "WithTrackAngle"
+    untracked bool useRingSlector = true
+    int32 minRing = 1
+    int32 maxRing = 2
+  }
+
+}
+
+
+module  thirdMixedSeeds =
+   globalMixedSeeds from "RecoTracker/TkSeedGenerator/data/GlobalMixedSeeds.cfi"
+replace thirdMixedSeeds.RegionFactoryPSet.RegionPSet.ptMin=1.0
+replace thirdMixedSeeds.OrderedHitsFactoryPSet.SeedingLayers = "ThirdLayerPairs"
+
+##TRAJECTORY MEASUREMENT
+es_module thirdMeasurementTracker =
+   MeasurementTracker from "RecoTracker/MeasurementDet/data/MeasurementTrackerESProducer.cfi"
+replace thirdMeasurementTracker.ComponentName = "thirdMeasurementTracker"
+replace thirdMeasurementTracker.pixelClusterProducer = "thirdClusters"
+replace thirdMeasurementTracker.stripClusterProducer = "thirdClusters"
+
+##TRAJECTORY BUILDER
+es_module thirdCkfTrajectoryBuilder =
+   CkfTrajectoryBuilder from "RecoTracker/CkfPattern/data/CkfTrajectoryBuilderESProducer.cfi"
+replace thirdCkfTrajectoryBuilder.ComponentName = "thirdCkfTrajectoryBuilder"
+replace thirdCkfTrajectoryBuilder.MeasurementTrackerName = "thirdMeasurementTracker"
+replace thirdCkfTrajectoryBuilder.ptCut = 1.0
+replace thirdCkfTrajectoryBuilder.maxLostHit = 0
+replace thirdCkfTrajectoryBuilder.minimumNumberOfHits = 3
+
+##TRACK CANDIDATES
+module thirdTrackCandidates =
+   ckfTrackCandidates from "RecoTracker/CkfPattern/data/CkfTrackCandidates.cfi"
+replace thirdTrackCandidates.SeedProducer= "thirdMixedSeeds"
+replace thirdTrackCandidates.TrajectoryBuilder = "thirdCkfTrajectoryBuilder"
+
+
+##TRACKS
+module thirdWithMaterialTracks = 
+  ctfWithMaterialTracks from "RecoTracker/TrackProducer/data/CTFFinalFitWithMaterial.cfi"
+replace  thirdWithMaterialTracks.src ="thirdTrackCandidates"       
+    
+
+
+module thirdvtxFilt=VertexFilter{
+    bool VertexCut =true
+    InputTag recTracks     = thirdWithMaterialTracks:
+    InputTag recVertices   = firstPrimaryVerticesFromCTFTracks:
+    double DistFromVertex  = 0.3
+}
+
+
+sequence third ={
+    thirdClusters
+    ,thirdPixelRecHits
+    ,thirdStripRecHits
+    ,thirdMixedSeeds
+    ,thirdTrackCandidates
+    ,thirdWithMaterialTracks
+    ,thirdvtxFilt
+}
+
+sequence third_nofilter ={
+    thirdClusters
+    ,thirdPixelRecHits
+    ,thirdStripRecHits
+    ,thirdMixedSeeds
+    ,thirdTrackCandidates
+    ,thirdWithMaterialTracks
+}

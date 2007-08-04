@@ -1,0 +1,15 @@
+##TRACKS
+module firstWithMaterialTracks = VertexFilter{
+    bool VertexCut =false
+    InputTag recTracks     = ctfWithMaterialTracks
+    int32 MinHits=8
+    double DistFromVertex  = 0.3
+}
+##VERTICES
+module firstPrimaryVerticesFromCTFTracks =
+  offlinePrimaryVerticesFromCTFTracks from "RecoVertex/PrimaryVertexProducer/data/OfflinePrimaryVerticesFromCTFTracks.cfi"
+replace firstPrimaryVerticesFromCTFTracks.TrackLabel = "firstWithMaterialTracks"
+sequence first ={
+    firstWithMaterialTracks,
+    firstPrimaryVerticesFromCTFTracks
+}

@@ -5,21 +5,26 @@ module elecpreid = GoodSeedProducer {
     
     string PreGsfLabel = "SeedsForGsf"
     string PreCkfLabel = "SeedsForCkf"
+    
+    
     VInputTag TkColList={
-	ctfWithMaterialTracks:
+	firstWithMaterialTracks,
+	vtxFilt,
+	thirdvtxFilt
     }
+
     InputTag PFEcalClusterLabel = particleFlowCluster:ECAL
     InputTag PFPSClusterLabel = particleFlowCluster:PS	
     
     int32 NHitsInSeed =3
     double ClusterThreshold=0.9
     
-    string	 EtaMap="RecoParticleFlow/PFProducer/data/resmap_ECAL_eta.dat"
-    string	 PhiMap="RecoParticleFlow/PFProducer/data/resmap_ECAL_phi.dat"
+    string	 EtaMap="RecoParticleFlow/PFBlockProducer/data/resmap_ECAL_eta.dat"
+    string	 PhiMap="RecoParticleFlow/PFBlockProducer/data/resmap_ECAL_phi.dat"
     untracked bool ProduceCkfPFTracks=true
     string ThresholdFile = "RecoParticleFlow/PFTracking/data/Threshold.dat"
     string PSThresholdFile = "RecoParticleFlow/PFTracking/data/PSThreshold.dat"
-    untracked bool UseTMVA = true
+    untracked bool UseTMVA = false
     string TMVAMethod ="BDT method"
     string WeightsForBarrel ="RecoParticleFlow/PFTracking/data/Barrel_weights.txt"
     string WeightsForEndcap ="RecoParticleFlow/PFTracking/data/Endcap_weights.txt"
