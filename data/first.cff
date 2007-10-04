@@ -1,15 +1,50 @@
-##TRACKS
-module firstWithMaterialTracks = VertexFilter{
-    bool VertexCut =false
-    InputTag recTracks     = ctfWithMaterialTracks
-    int32 MinHits=8
-    double DistFromVertex  = 0.3
+module firstTriplets = SeedGeneratorFromRegionHitsEDProducer {
+    
+    string TTRHBuilder = "WithTrackAngle"
+    
+    PSet RegionFactoryPSet = {
+	string ComponentName = "GlobalRegionProducer"
+	include "RecoTracker/TkTrackingRegions/data/GlobalTrackingRegion.cfi"
+    }
+    
+    PSet SeedComparitorPSet = { string ComponentName = "none" }
+    PSet OrderedHitsFactoryPSet = {
+	string ComponentName = "StandardHitTripletGenerator"
+	string SeedingLayers = "PixelLayerTriplets"
+	include "RecoPixelVertexing/PixelTriplets/data/PixelTripletHLTGenerator.cfi"
+    }
 }
-##VERTICES
-module firstPrimaryVerticesFromCTFTracks =
-  offlinePrimaryVerticesFromCTFTracks from "RecoVertex/PrimaryVertexProducer/data/OfflinePrimaryVerticesFromCTFTracks.cfi"
-replace firstPrimaryVerticesFromCTFTracks.TrackLabel = "firstWithMaterialTracks"
-sequence first ={
+
+##TRAJECTORY BUILDER
+es_module firstCkfTrajectoryBuilder =
+  GroupedCkfTrajectoryBuilder from "RecoTracker/CkfPattern/data/GroupedCkfTrajectoryBuilderESProducer.cfi"
+replace firstCkfTrajectoryBuilder.ComponentName = "firstCkfTrajectoryBuilder"
+replace firstCkfTrajectoryBuilder.minimumNumberOfHits = 5
+
+##TRACK CANDIDATES
+module firstTrackCandidates =
+   ckfTrackCandidates from "RecoTracker/CkfPattern/data/CkfTrackCandidates.cfi"
+replace firstTrackCandidates.SeedProducer= "firstTriplets"
+replace firstTrackCandidates.TrajectoryBuilder = "firstCkfTrajectoryBuilder"
+
+
+##TRACKS
+module firstWithMaterialTracks = 
+  ctfWithMaterialTracks from "RecoTracker/TrackProducer/data/CTFFinalFitWithMaterial.cfi"
+replace  firstWithMaterialTracks.src ="firstTrackCandidates"   
+
+##FILTER
+module firstvtxFilt=VertexFilter{
+    int32 MinHits             = 5
+    double DistZFromVertex    = 0.5
+    double DistRhoFromVertex  = 0.1
+    double ChiCut             = 100
+    InputTag recTracks        = firstWithMaterialTracks:
+    InputTag recVertices      = pixelVertices:
+}
+sequence first={
+    firstTriplets,
+    firstTrackCandidates,
     firstWithMaterialTracks,
-    firstPrimaryVerticesFromCTFTracks
+    firstvtxFilt
 }

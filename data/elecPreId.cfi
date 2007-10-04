@@ -8,9 +8,10 @@ module elecpreid = GoodSeedProducer {
     
     
     VInputTag TkColList={
-	firstWithMaterialTracks,
-	vtxFilt,
-	thirdvtxFilt
+  	firstvtxFilt,
+	secondvtxFilt,
+	thirdvtxFilt,
+	fourthvtxFilt
     }
 
     InputTag PFEcalClusterLabel = particleFlowCluster:ECAL

@@ -4,15 +4,14 @@ module secondClusters = RemainingClusterProducer{
     InputTag rphirecHits       = siStripMatchedRecHits:rphiRecHit
     InputTag stereorecHits     = siStripMatchedRecHits:stereoRecHit
     InputTag pixelHits         = siPixelRecHits:
-    InputTag recTracks         = firstWithMaterialTracks:
-    double DistanceCut         = 0.1
+    InputTag recTracks         = firstvtxFilt:
 }
 
 ##TRACKER HITS
     
 module secondPixelRecHits =
   siPixelRecHits from "RecoLocalTracker/SiPixelRecHits/data/SiPixelRecHits.cfi"
-replace secondPixelRecHits.src="secondClusters"
+replace secondPixelRecHits.src=secondClusters:
 
 
 module secondStripRecHits = 
@@ -22,49 +21,59 @@ replace secondStripRecHits.ClusterProducer = "secondClusters"
     
 
 ##SEEDS
-es_module secondlayerpairs =  MixedLayerPairsESProducer {
-
-  string ComponentName = "SecondLayerPairs"
-
-  vstring layerList = { "BPix1+BPix2", "BPix1+BPix3", "BPix2+BPix3",
-                        "BPix1+FPix1_pos", "BPix1+FPix1_neg", "BPix1+FPix2_pos", "BPix1+FPix2_neg",
-                        "BPix2+FPix1_pos", "BPix2+FPix1_neg", "BPix2+FPix2_pos", "BPix2+FPix2_neg",
-                        "FPix1_pos+FPix2_pos", "FPix1_neg+FPix2_neg",
-                        "FPix2_pos+TEC1_pos","FPix2_pos+TEC2_pos","TEC2_pos+TEC3_pos",
-                        "FPix2_neg+TEC1_neg","FPix2_neg+TEC2_neg","TEC2_neg+TEC3_neg"
-                        }
-
-  PSet BPix = {
-    string HitProducer = "secondPixelRecHits"  
-    string TTRHBuilder = "TTRHBuilderWithoutAngle4MixedPairs" 
-    untracked bool useErrorsFromParam = true
-    double hitErrorRPhi = 0.0027  
-    double hitErrorRZ   = 0.0060 
+es_module secondlayertriplets =  PixelLayerTripletsESProducer {
+ 
+   string ComponentName = "SecondLayerTriplets"
+ 
+   vstring layerList = { "BPix1+BPix2+BPix3",
+                         "BPix1+BPix2+FPix1_pos",
+                         "BPix1+BPix2+FPix1_neg",
+                         "BPix1+FPix1_pos+FPix2_pos",
+                         "BPix1+FPix1_neg+FPix2_neg"
+   }
+   PSet BPix = {
+     string HitProducer = "secondPixelRecHits"
+     string TTRHBuilder = "TTRHBuilderWithoutAngle4PixelTriplets"
+     untracked bool useErrorsFromParam = true
+     double hitErrorRPhi = 0.0027
+     double hitErrorRZ   = 0.0060
+   }
+ 
+   PSet FPix = {
+     string HitProducer = "secondPixelRecHits"
+     string TTRHBuilder = "TTRHBuilderWithoutAngle4PixelTriplets"
+     untracked bool useErrorsFromParam = true
+     double hitErrorRPhi = 0.0051
+     double hitErrorRZ   = 0.0036
   }
-
-  PSet FPix = {
-    string HitProducer = "secondPixelRecHits"  
-    string TTRHBuilder = "TTRHBuilderWithoutAngle4MixedPairs" 
-    untracked bool useErrorsFromParam = true
-    double hitErrorRPhi = 0.0051 
-    double hitErrorRZ   = 0.0036  
-  }
-
-  PSet TEC = {
-    InputTag matchedRecHits = secondStripRecHits:matchedRecHit
-    string TTRHBuilder        =  "WithTrackAngle"
-    untracked bool useRingSlector = true
-    int32 minRing = 1
-    int32 maxRing = 2
-  }
-
-}
+ }
 
 
-module  secondMixedSeeds =
-   globalMixedSeeds from "RecoTracker/TkSeedGenerator/data/GlobalMixedSeeds.cfi"
-replace secondMixedSeeds.RegionFactoryPSet.RegionPSet.ptMin=0.5
-replace secondMixedSeeds.OrderedHitsFactoryPSet.SeedingLayers = "SecondLayerPairs"
+    module secondTriplets = SeedGeneratorFromRegionHitsEDProducer {
+
+        string TTRHBuilder = "WithTrackAngle"
+
+        PSet RegionFactoryPSet = {
+            string ComponentName = "GlobalRegionProducer"
+
+           PSet RegionPSet = {
+              double ptMin = 0.5
+              double originRadius = 0.2
+              double originHalfLength = 15.9 
+              double originZPos = 0.0
+              bool precise = true
+           }
+        }
+
+        PSet SeedComparitorPSet = { string ComponentName = "none" }
+        PSet OrderedHitsFactoryPSet = {
+            string ComponentName = "StandardHitTripletGenerator"
+            string SeedingLayers = "SecondLayerTriplets"
+            include "RecoPixelVertexing/PixelTriplets/data/PixelTripletHLTGenerator.cfi"
+        }
+    }
+
+
 
 ##TRAJECTORY MEASUREMENT
 es_module secondMeasurementTracker =
@@ -75,17 +84,17 @@ replace secondMeasurementTracker.stripClusterProducer = "secondClusters"
 
 ##TRAJECTORY BUILDER
 es_module secondCkfTrajectoryBuilder =
-   CkfTrajectoryBuilder from "RecoTracker/CkfPattern/data/CkfTrajectoryBuilderESProducer.cfi"
+   GroupedCkfTrajectoryBuilder from "RecoTracker/CkfPattern/data/GroupedCkfTrajectoryBuilderESProducer.cfi"
 replace secondCkfTrajectoryBuilder.ComponentName = "secondCkfTrajectoryBuilder"
 replace secondCkfTrajectoryBuilder.MeasurementTrackerName = "secondMeasurementTracker"
 replace secondCkfTrajectoryBuilder.ptCut = 0.5
-replace secondCkfTrajectoryBuilder.maxLostHit = 0
-replace secondCkfTrajectoryBuilder.minimumNumberOfHits = 5
+replace secondCkfTrajectoryBuilder.maxLostHit = 1
+replace secondCkfTrajectoryBuilder.minimumNumberOfHits = 4
 
 ##TRACK CANDIDATES
 module secondTrackCandidates =
    ckfTrackCandidates from "RecoTracker/CkfPattern/data/CkfTrackCandidates.cfi"
-replace secondTrackCandidates.SeedProducer= "secondMixedSeeds"
+replace secondTrackCandidates.SeedProducer= "secondTriplets"
 replace secondTrackCandidates.TrajectoryBuilder = "secondCkfTrajectoryBuilder"
 
 
@@ -98,11 +107,14 @@ replace  secondWithMaterialTracks.src ="secondTrackCandidates"
 
 
 
-module vtxFilt=VertexFilter{
+module secondvtxFilt=VertexFilter{
     bool VertexCut =true
     InputTag recTracks     = secondWithMaterialTracks:
-    InputTag recVertices   = firstPrimaryVerticesFromCTFTracks:
-    double DistFromVertex  = 0.3
+    int32 MinHits             = 4
+    double DistZFromVertex    = 0.4
+    double DistRhoFromVertex  = 0.1
+    double ChiCut             = 130
+    InputTag recVertices      = pixelVertices:
 }
 
 
@@ -110,17 +122,10 @@ sequence second ={
     secondClusters
     ,secondPixelRecHits
     ,secondStripRecHits
-    ,secondMixedSeeds
+    ,secondTriplets
     ,secondTrackCandidates
     ,secondWithMaterialTracks
-    ,vtxFilt
+    ,secondvtxFilt
 }
 
-sequence second_nofilter ={
-    secondClusters
-    ,secondPixelRecHits
-    ,secondStripRecHits
-    ,secondMixedSeeds
-    ,secondTrackCandidates
-    ,secondWithMaterialTracks
-}
+

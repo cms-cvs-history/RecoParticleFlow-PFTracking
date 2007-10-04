@@ -4,15 +4,14 @@ module thirdClusters = RemainingClusterProducer{
     InputTag rphirecHits       = secondStripRecHits:rphiRecHit
     InputTag stereorecHits     = secondStripRecHits:stereoRecHit
     InputTag pixelHits         = secondPixelRecHits:
-    InputTag recTracks         = vtxFilt:
-    double DistanceCut         = 0.1
+    InputTag recTracks         = secondvtxFilt:
 }
 
 ##TRACKER HITS
     
 module thirdPixelRecHits =
   siPixelRecHits from "RecoLocalTracker/SiPixelRecHits/data/SiPixelRecHits.cfi"
-replace thirdPixelRecHits.src="thirdClusters"
+replace thirdPixelRecHits.src= thirdClusters
 
 
 module thirdStripRecHits = 
@@ -63,7 +62,7 @@ es_module thirdlayerpairs =  MixedLayerPairsESProducer {
 
 module  thirdMixedSeeds =
    globalMixedSeeds from "RecoTracker/TkSeedGenerator/data/GlobalMixedSeeds.cfi"
-replace thirdMixedSeeds.RegionFactoryPSet.RegionPSet.ptMin=1.0
+replace thirdMixedSeeds.RegionFactoryPSet.RegionPSet.ptMin=0.5
 replace thirdMixedSeeds.OrderedHitsFactoryPSet.SeedingLayers = "ThirdLayerPairs"
 
 ##TRAJECTORY MEASUREMENT
@@ -75,11 +74,11 @@ replace thirdMeasurementTracker.stripClusterProducer = "thirdClusters"
 
 ##TRAJECTORY BUILDER
 es_module thirdCkfTrajectoryBuilder =
-   CkfTrajectoryBuilder from "RecoTracker/CkfPattern/data/CkfTrajectoryBuilderESProducer.cfi"
+   GroupedCkfTrajectoryBuilder from "RecoTracker/CkfPattern/data/GroupedCkfTrajectoryBuilderESProducer.cfi"
 replace thirdCkfTrajectoryBuilder.ComponentName = "thirdCkfTrajectoryBuilder"
 replace thirdCkfTrajectoryBuilder.MeasurementTrackerName = "thirdMeasurementTracker"
-replace thirdCkfTrajectoryBuilder.ptCut = 1.0
-replace thirdCkfTrajectoryBuilder.maxLostHit = 0
+replace thirdCkfTrajectoryBuilder.ptCut = 0.5
+replace thirdCkfTrajectoryBuilder.maxLostHit = 1
 replace thirdCkfTrajectoryBuilder.minimumNumberOfHits = 3
 
 ##TRACK CANDIDATES
@@ -99,8 +98,12 @@ replace  thirdWithMaterialTracks.src ="thirdTrackCandidates"
 module thirdvtxFilt=VertexFilter{
     bool VertexCut =true
     InputTag recTracks     = thirdWithMaterialTracks:
-    InputTag recVertices   = firstPrimaryVerticesFromCTFTracks:
-    double DistFromVertex  = 0.3
+    int32 MinHits             = 5
+    double DistZFromVertex    = 0.1
+    double DistRhoFromVertex  = 0.1
+    double ChiCut             = 250000
+    InputTag recVertices      = pixelVertices:
+ 
 }
 
 
@@ -112,13 +115,4 @@ sequence third ={
     ,thirdTrackCandidates
     ,thirdWithMaterialTracks
     ,thirdvtxFilt
-}
-
-sequence third_nofilter ={
-    thirdClusters
-    ,thirdPixelRecHits
-    ,thirdStripRecHits
-    ,thirdMixedSeeds
-    ,thirdTrackCandidates
-    ,thirdWithMaterialTracks
 }
