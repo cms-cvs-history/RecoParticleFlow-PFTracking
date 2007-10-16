@@ -1,9 +1,0 @@
-include "RecoTracker/TkSeedingLayers/data/MixedLayerPairs.cfi"
-include "RecoTracker/TrackProducer/data/CTFFinalFitWithMaterial.cff"
-include "RecoVertex/Configuration/data/RecoVertex.cff"
-include "RecoParticleFlow/PFTracking/data/first.cff"
-include "RecoParticleFlow/PFTracking/data/second.cff"
-include "RecoParticleFlow/PFTracking/data/third.cff"
-include "RecoParticleFlow/PFTracking/data/fourth.cff"
-sequence threesteps= {first,second,third,fourth}
-
