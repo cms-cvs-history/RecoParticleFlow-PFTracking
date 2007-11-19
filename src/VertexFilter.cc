@@ -100,8 +100,7 @@ VertexFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       
       if (hasAVertex){
 	Track track =(*itc);
-	selTracks->push_back( track );
-	outputTJ->push_back(*traj);
+
 	
 	
 	iTkRef++;
@@ -141,7 +140,7 @@ VertexFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	TrackExtra & tx =const_cast<TrackExtra &>((*(*itc).extra()));
 	
 	
-	selTrackExtras->push_back(tx);
+
 	trackingRecHit_iterator irhit=(*itc).recHitsBegin();
 	size_t i = 0;
 	for (; irhit!=(*itc).recHitsEnd(); irhit++){
@@ -149,6 +148,9 @@ VertexFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  track.setHitPattern( * hit, i ++ );
 	  selHits->push_back(hit );
 	}
+	selTrackExtras->push_back(tx);
+	outputTJ->push_back(*traj);	
+	selTracks->push_back( track ); 
       }
     }
   }
