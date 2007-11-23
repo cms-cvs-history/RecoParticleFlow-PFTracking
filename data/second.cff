@@ -82,14 +82,20 @@ replace secondMeasurementTracker.ComponentName = "secondMeasurementTracker"
 replace secondMeasurementTracker.pixelClusterProducer = "secondClusters"
 replace secondMeasurementTracker.stripClusterProducer = "secondClusters"
 
+
+##TRAJECTORY FILTER
+es_module secondCkfTrajectoryFilter = trajectoryFilterESProducer from "TrackingTools/TrajectoryFiltering/data/TrajectoryFilterESProducer.cfi"
+replace secondCkfTrajectoryFilter.ComponentName = "secondCkfTrajectoryFilter"
+replace secondCkfTrajectoryFilter.filterPset.minimumNumberOfHits = 4
+replace secondCkfTrajectoryFilter.filterPset.maxLostHits = 1
+replace secondCkfTrajectoryFilter.filterPset.minPt   = 0.5
+
 ##TRAJECTORY BUILDER
 es_module secondCkfTrajectoryBuilder =
    GroupedCkfTrajectoryBuilder from "RecoTracker/CkfPattern/data/GroupedCkfTrajectoryBuilderESProducer.cfi"
 replace secondCkfTrajectoryBuilder.ComponentName = "secondCkfTrajectoryBuilder"
 replace secondCkfTrajectoryBuilder.MeasurementTrackerName = "secondMeasurementTracker"
-replace secondCkfTrajectoryBuilder.ptCut = 0.5
-replace secondCkfTrajectoryBuilder.maxLostHit = 1
-replace secondCkfTrajectoryBuilder.minimumNumberOfHits = 4
+replace secondCkfTrajectoryBuilder.trajectoryFilterName = "secondCkfTrajectoryFilter"
 
 ##TRACK CANDIDATES
 module secondTrackCandidates =
