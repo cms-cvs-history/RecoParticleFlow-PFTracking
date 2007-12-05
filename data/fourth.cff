@@ -74,20 +74,14 @@ replace fourthMeasurementTracker.ComponentName = "fourthMeasurementTracker"
 replace fourthMeasurementTracker.pixelClusterProducer = "fourthClusters"
 replace fourthMeasurementTracker.stripClusterProducer = "fourthClusters"
 
-##TRAJECTORY FILTER
-es_module fourthCkfTrajectoryFilter = trajectoryFilterESProducer from "TrackingTools/TrajectoryFiltering/data/TrajectoryFilterESProducer.cfi"
-replace fourthCkfTrajectoryFilter.ComponentName = "fourthCkfTrajectoryFilter"
-replace fourthCkfTrajectoryFilter.filterPset.minimumNumberOfHits = 3
-replace fourthCkfTrajectoryFilter.filterPset.maxLostHits = 1
-replace fourthCkfTrajectoryFilter.filterPset.minPt   = 0.3
-
-
 ##TRAJECTORY BUILDER
 es_module fourthCkfTrajectoryBuilder =
    GroupedCkfTrajectoryBuilder from "RecoTracker/CkfPattern/data/GroupedCkfTrajectoryBuilderESProducer.cfi"
 replace fourthCkfTrajectoryBuilder.ComponentName = "fourthCkfTrajectoryBuilder"
 replace fourthCkfTrajectoryBuilder.MeasurementTrackerName = "fourthMeasurementTracker"
-replace fourthCkfTrajectoryBuilder.trajectoryFilterName = "fourthCkfTrajectoryFilter"
+replace fourthCkfTrajectoryBuilder.ptCut = 0.3
+replace fourthCkfTrajectoryBuilder.maxLostHit = 1
+replace fourthCkfTrajectoryBuilder.minimumNumberOfHits = 3
 
 ##TRACK CANDIDATES
 module fourthTrackCandidates =

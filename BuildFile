@@ -10,7 +10,7 @@
 <use name=FastSimulation/BaseParticlePropagator>
 <use name=clhep>
 <use name=boost>
-<use name=roottmva>
+<flags LDFLAGS="-lTMVA">
 <export>	
 <lib name=RecoParticleFlowPFTracking>
 <use name=FWCore/Framework>
