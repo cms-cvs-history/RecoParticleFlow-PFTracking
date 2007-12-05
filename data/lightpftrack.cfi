@@ -1,0 +1,8 @@
+module lightpftrackprod =LightPFTrackProducer{
+    VInputTag TkColList={
+  	firstvtxFilt,
+	secondvtxFilt,
+	thirdvtxFilt,
+	fourthvtxFilt
+    }
+}
