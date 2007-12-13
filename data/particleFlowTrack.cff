@@ -7,7 +7,7 @@ replace gsfElCandidates.TrajectoryBuilder    = "CkfElectronTrajectoryBuilder"
 replace gsfElCandidates.SeedProducer = "elecpreid"
 replace gsfElCandidates.SeedLabel = "SeedsForGsf"
 
-module gsfPFtracks = GsfElectrons from "TrackingTools/GsfTracking/data/GsfElectronFit.cfi"
+module gsfPFtracks = GsfGlobalElectronTest from "TrackingTools/GsfTracking/data/GsfElectronFit.cfi"
 replace gsfPFtracks.Fitter = "GsfElectronFittingSmoother"
 replace gsfPFtracks.Propagator = "fwdElectronPropagator"
 replace gsfPFtracks.src = "gsfElCandidates"
