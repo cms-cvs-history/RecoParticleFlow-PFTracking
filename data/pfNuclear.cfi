@@ -1,0 +1,8 @@
+module pfNuclear =PFNuclearProducer{
+    VInputTag nuclearColList={
+  	firstnuclearInteractionMaker,
+	secondnuclearInteractionMaker,
+	thirdnuclearInteractionMaker,
+	fourthnuclearInteractionMaker
+    }
+}
