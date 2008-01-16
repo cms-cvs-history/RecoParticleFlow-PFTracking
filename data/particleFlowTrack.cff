@@ -1,6 +1,7 @@
 include "RecoParticleFlow/PFTracking/data/elecPreId.cff"
 include "TrackingTools/GsfTracking/data/CkfElectronCandidates.cff"
 include "TrackingTools/GsfTracking/data/GsfElectrons.cff" 
+include "RecoParticleFlow/PFTracking/data/pfNuclear.cfi"
 
 module gsfElCandidates =  ckfTrackCandidates from "RecoTracker/CkfPattern/data/CkfTrackCandidates.cfi"
 replace gsfElCandidates.TrajectoryBuilder    = "CkfElectronTrajectoryBuilder"
@@ -17,4 +18,5 @@ replace gsfPFtracks.producer = ""
 
 include "RecoParticleFlow/PFTracking/data/pfTrackElec.cfi"
 sequence particleFlowTrack={elecPreId,gsfElCandidates,gsfPFtracks,pfTrackElec}
+sequence particleFlowTrackWithNuclear={elecPreId,gsfElCandidates,gsfPFtracks,pfTrackElec, pfNuclear}
 
