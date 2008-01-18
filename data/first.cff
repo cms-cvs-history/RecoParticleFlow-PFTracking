@@ -15,16 +15,11 @@ module firstTriplets = SeedGeneratorFromRegionHitsEDProducer {
     }
 }
 
-#TRAJECTORY FILTER
-es_module firstCkfTrajectoryFilter = trajectoryFilterESProducer from "TrackingTools/TrajectoryFiltering/data/TrajectoryFilterESProducer.cfi"
-replace firstCkfTrajectoryFilter.ComponentName = "firstCkfTrajectoryFilter"
-replace firstCkfTrajectoryFilter.filterPset.minimumNumberOfHits = 5
-
 ##TRAJECTORY BUILDER
 es_module firstCkfTrajectoryBuilder =
   GroupedCkfTrajectoryBuilder from "RecoTracker/CkfPattern/data/GroupedCkfTrajectoryBuilderESProducer.cfi"
 replace firstCkfTrajectoryBuilder.ComponentName = "firstCkfTrajectoryBuilder"
-replace firstCkfTrajectoryBuilder.trajectoryFilterName = "firstCkfTrajectoryFilter"
+replace firstCkfTrajectoryBuilder.minimumNumberOfHits = 5
 
 ##TRACK CANDIDATES
 module firstTrackCandidates =
