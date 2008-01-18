@@ -170,13 +170,13 @@ FakeEval::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     if ((!simTC[i].noGenpart())&&
 	(simTC[i].charge()!=0)&&
-	(simTC[i].momentum().Pt()>ptcut)&&
+	(simTC[i].momentum().perp()>ptcut)&&
 	(isimhit>Minhit)){ 
   
-      ptsim+=simTC[i].momentum().Pt(); 
-      hpt_sim->Fill(simTC[i].momentum().Pt());
-      hpt_sim_red->Fill(simTC[i].momentum().Pt());
-      simsim.push_back(make_pair(tp.index(),make_pair(0,simTC[i].momentum().Pt())));
+      ptsim+=simTC[i].momentum().perp(); 
+      hpt_sim->Fill(simTC[i].momentum().perp());
+      hpt_sim_red->Fill(simTC[i].momentum().perp());
+      simsim.push_back(make_pair(tp.index(),make_pair(0,simTC[i].momentum().perp())));
 
     }
   }
