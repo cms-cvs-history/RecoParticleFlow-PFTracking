@@ -72,19 +72,14 @@ replace thirdMeasurementTracker.ComponentName = "thirdMeasurementTracker"
 replace thirdMeasurementTracker.pixelClusterProducer = "thirdClusters"
 replace thirdMeasurementTracker.stripClusterProducer = "thirdClusters"
 
-##TRAJECTORY FILTER
-es_module thirdCkfTrajectoryFilter = trajectoryFilterESProducer from "TrackingTools/TrajectoryFiltering/data/TrajectoryFilterESProducer.cfi"
-replace thirdCkfTrajectoryFilter.ComponentName = "thirdCkfTrajectoryFilter"
-replace thirdCkfTrajectoryFilter.filterPset.minimumNumberOfHits = 3
-replace thirdCkfTrajectoryFilter.filterPset.maxLostHits = 1
-replace thirdCkfTrajectoryFilter.filterPset.minPt   = 0.5
-
 ##TRAJECTORY BUILDER
 es_module thirdCkfTrajectoryBuilder =
    GroupedCkfTrajectoryBuilder from "RecoTracker/CkfPattern/data/GroupedCkfTrajectoryBuilderESProducer.cfi"
 replace thirdCkfTrajectoryBuilder.ComponentName = "thirdCkfTrajectoryBuilder"
 replace thirdCkfTrajectoryBuilder.MeasurementTrackerName = "thirdMeasurementTracker"
-replace thirdCkfTrajectoryBuilder.trajectoryFilterName = "thirdCkfTrajectoryFilter"
+replace thirdCkfTrajectoryBuilder.ptCut = 0.5
+replace thirdCkfTrajectoryBuilder.maxLostHit = 1
+replace thirdCkfTrajectoryBuilder.minimumNumberOfHits = 3
 
 ##TRACK CANDIDATES
 module thirdTrackCandidates =
