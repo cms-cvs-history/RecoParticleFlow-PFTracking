@@ -1,22 +1,22 @@
 include "RecoParticleFlow/PFTracking/data/elecPreId.cff"
 include "TrackingTools/GsfTracking/data/CkfElectronCandidates.cff"
 include "TrackingTools/GsfTracking/data/GsfElectrons.cff" 
-include "RecoParticleFlow/PFTracking/data/pfNuclear.cfi"
 
 module gsfElCandidates =  ckfTrackCandidates from "RecoTracker/CkfPattern/data/CkfTrackCandidates.cfi"
 replace gsfElCandidates.TrajectoryBuilder    = "CkfElectronTrajectoryBuilder"
 replace gsfElCandidates.SeedProducer = "elecpreid"
 replace gsfElCandidates.SeedLabel = "SeedsForGsf"
 
-module gsfPFtracks = GsfGlobalElectronTest from "TrackingTools/GsfTracking/data/GsfElectronFit.cfi"
-replace gsfPFtracks.Fitter = "GsfElectronFittingSmoother"
-replace gsfPFtracks.Propagator = "fwdElectronPropagator"
-replace gsfPFtracks.src = "gsfElCandidates"
-replace gsfPFtracks.TTRHBuilder       =   "WithTrackAngle"
-replace gsfPFtracks.TrajectoryInEvent = true
-replace gsfPFtracks.producer = ""
+module gsfPFtracks= GsfTrackProducer
+{
+  string Fitter = "GsfElectronFittingSmoother"
+  string Propagator = "fwdElectronPropagator"
+  string src = "gsfElCandidates"
+  string TTRHBuilder       =   "WithTrackAngle"
+  bool TrajectoryInEvent = true
+  string producer = ""
+}
 
 include "RecoParticleFlow/PFTracking/data/pfTrackElec.cfi"
 sequence particleFlowTrack={elecPreId,gsfElCandidates,gsfPFtracks,pfTrackElec}
-sequence particleFlowTrackWithNuclear={elecPreId,gsfElCandidates,gsfPFtracks,pfTrackElec, pfNuclear}
 
