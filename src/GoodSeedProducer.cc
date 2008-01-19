@@ -44,7 +44,6 @@ GoodSeedProducer::GoodSeedProducer(const ParameterSet& iConfig):
     iConfig.getParameter< vector < InputTag > >("TkColList");
   
   minPt_=iConfig.getParameter<double>("MinPt");
-  maxPt_=iConfig.getParameter<double>("MaxPt");
   maxEta_=iConfig.getParameter<double>("MaxEta");
   
   pfCLusTagECLabel_=
@@ -257,9 +256,8 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
       //Matching criteria
       float chi2cut=thr[ibin+0];
       float ep_cutmin=thr[ibin+1];
-      bool GoodMatching= ((chichi<chi2cut) &&(EP>ep_cutmin) && (nhitpi>10));
-      if (Tk[i].pt()>maxPt_) GoodMatching=true;
-      if (Tk[i].pt()<minPt_) GoodMatching=false;
+      bool GoodMatching= ((chichi<chi2cut) &&(EP>ep_cutmin) &&(EP<1.2));
+      
       //ENDCAP
       //USE OF PRESHOWER 
       if (fabs(Tk[i].eta())>1.6){
@@ -491,7 +489,7 @@ int GoodSeedProducer::getBin(float eta, float pt){
   int ie=0;
   int ip=0;
   if (fabs(eta)<1.2) ie=0;
-  else{ if (fabs(eta)<1.6) ie=1;
+  else{ if (fabs(eta)<1.65) ie=1;
     else ie=2;
   }
   if (pt<6) ip=0;

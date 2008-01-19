@@ -88,7 +88,6 @@ VertexFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   VertexCollection::const_iterator lastVertex = vxC->end();
   unsigned vxCsize = vxC->size();
 
-
   float z_lead=0.;
   unsigned sizeMax = 0;
   if(vxCsize==0){
@@ -194,7 +193,6 @@ VertexFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 			   aTrack.innerDetId(),
 			   aTrack.seedDirection(),
 			   aTrack.seedRef());
-	
 
     //unsigned nHits = aTrack.numberOfValidHits();
     unsigned nHits = aTrack.recHitsSize();
