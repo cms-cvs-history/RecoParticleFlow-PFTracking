@@ -140,15 +140,15 @@ FakeEval::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   TrackAssociatorBase * associatorByHits = (TrackAssociatorBase *) theHitsAssociator.product();
   
   InputTag tkTagFirst    = conf_.getParameter<InputTag>("FirstTrackCollection");
-  Handle<TrackCollection> tkFirstCollection;
+  Handle<edm::View<reco::Track> > tkFirstCollection;
   iEvent.getByLabel( tkTagFirst             , tkFirstCollection);
 
   InputTag tkTagSecond    = conf_.getParameter<InputTag>("SecondTrackCollection");
-  Handle<TrackCollection> tkSecondCollection;
+  Handle<edm::View<reco::Track> > tkSecondCollection;
   iEvent.getByLabel( tkTagSecond             , tkSecondCollection);
 
   InputTag tkTagThird    = conf_.getParameter<InputTag>("ThirdTrackCollection");
-  Handle<TrackCollection> tkThirdCollection;
+  Handle<edm::View<reco::Track> > tkThirdCollection;
   iEvent.getByLabel( tkTagThird             , tkThirdCollection);
 
 
@@ -200,14 +200,14 @@ FakeEval::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   //FIRST COLLECTION
   if (Iter>0){
 
-    const TrackCollection  tCFirst = *(tkFirstCollection.product()); 
+    const edm::View<reco::Track>  tCFirst = *(tkFirstCollection.product()); 
 
     RecoToSimCollection pFirst = 
       associatorByHits->associateRecoToSim (tkFirstCollection,tpCollection,&iEvent );
     
     tot1+=tCFirst.size(); 
     
-    for(TrackCollection::size_type i=0; i<tCFirst.size(); ++i) {
+    for(edm::View<reco::Track>::size_type i=0; i<tCFirst.size(); ++i) {
      hpt_rec1->Fill(tCFirst[i].pt());
      hpt_rec1_red->Fill(tCFirst[i].pt());
      hpt_rec2->Fill(tCFirst[i].pt());
@@ -218,12 +218,12 @@ FakeEval::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      hpt_rec4_red->Fill(tCFirst[i].pt());
      ptrec+=tCFirst[i].pt();
      ptrec1+=tCFirst[i].pt();
-     TrackRef track(tkFirstCollection, i);
+     edm::RefToBase<reco::Track> track(tkFirstCollection, i);
       
       
       try{ 
 	std::vector<std::pair<TrackingParticleRef, double> > tp = pFirst[track];
-	if(debug)    cout << "Reco Track " << setw(2) << track.index() 
+	if(debug)    cout << "Reco Track " << setw(2) << track.key() 
 			  << " pT: "  << setw(6) << track->pt() 
 			  <<  " matched to " << tp.size() 
 			  << " MC Tracks" << std::endl;
@@ -284,7 +284,7 @@ FakeEval::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	ptfake+=track->pt();
 	fak1++;
-	if(debug) cout << "->   Track " << setw(2) << track.index() << " pT: " 
+	if(debug) cout << "->   Track " << setw(2) << track.key() << " pT: " 
 		       << setprecision(2) << setw(6) << track->pt() 
 		       <<  " matched to 0  MC Tracks" << endl;
 	
@@ -296,14 +296,14 @@ FakeEval::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   //SECOND COLLECTION
   if (Iter>1){
-    const TrackCollection  tCSecond = *(tkSecondCollection.product()); 
+    const edm::View<reco::Track>  tCSecond = *(tkSecondCollection.product()); 
 
     RecoToSimCollection pSecond = 
       associatorByHits->associateRecoToSim (tkSecondCollection,tpCollection,&iEvent );
     
     tot2+=tCSecond.size(); 
     
-    for(TrackCollection::size_type i=0; i<tCSecond.size(); ++i) {
+    for(edm::View<reco::Track>::size_type i=0; i<tCSecond.size(); ++i) {
      hpt_rec2->Fill(tCSecond[i].pt());
      hpt_rec2_red->Fill(tCSecond[i].pt());
      hpt_rec3->Fill(tCSecond[i].pt());
@@ -312,12 +312,12 @@ FakeEval::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      hpt_rec4_red->Fill(tCSecond[i].pt());
      ptrec+=tCSecond[i].pt();
      ptrec2+=tCSecond[i].pt();
-     TrackRef track(tkSecondCollection, i);
+     edm::RefToBase<reco::Track> track(tkSecondCollection, i);
       
       
       try{ 
 	std::vector<std::pair<TrackingParticleRef, double> > tp = pSecond[track];
-	if(debug)    cout << "Reco Track " << setw(2) << track.index() 
+	if(debug)    cout << "Reco Track " << setw(2) << track.key() 
 			  << " pT: "  << setw(6) << track->pt() 
 			  <<  " matched to " << tp.size() 
 			  << " MC Tracks" << std::endl;
@@ -371,7 +371,7 @@ FakeEval::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	//     cout<<"hu" <<endl;
 	ptfake+=track->pt();
 	fak2++;
-	if(debug) cout << "->   Track " << setw(2) << track.index() << " pT: " 
+	if(debug) cout << "->   Track " << setw(2) << track.key() << " pT: " 
 		       << setprecision(2) << setw(6) << track->pt() 
 		       <<  " matched to 0  MC Tracks" << endl;
 	
@@ -383,26 +383,26 @@ FakeEval::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   //THIRD COLLECTION
   if (Iter>2){
 
-    const TrackCollection  tCThird = *(tkThirdCollection.product()); 
+    const edm::View<reco::Track> tCThird = *(tkThirdCollection.product()); 
 
     RecoToSimCollection pThird = 
       associatorByHits->associateRecoToSim (tkThirdCollection,tpCollection,&iEvent );
     
     tot3+=tCThird.size(); 
     
-    for(TrackCollection::size_type i=0; i<tCThird.size(); ++i) {
+    for(edm::View<reco::Track>::size_type i=0; i<tCThird.size(); ++i) {
      hpt_rec3->Fill(tCThird[i].pt());
      hpt_rec3_red->Fill(tCThird[i].pt());
      hpt_rec4->Fill(tCThird[i].pt());
      hpt_rec4_red->Fill(tCThird[i].pt());
      ptrec+=tCThird[i].pt();
      ptrec3+=tCThird[i].pt();
-     TrackRef track(tkThirdCollection, i);
+     edm::RefToBase<reco::Track> track(tkThirdCollection, i);
       
       
       try{ 
 	std::vector<std::pair<TrackingParticleRef, double> > tp = pThird[track];
-	if(debug)    cout << "Reco Track " << setw(2) << track.index() 
+	if(debug)    cout << "Reco Track " << setw(2) << track.key() 
 			  << " pT: "  << setw(6) << track->pt() 
 			  <<  " matched to " << tp.size() 
 			  << " MC Tracks" << std::endl;
@@ -458,7 +458,7 @@ FakeEval::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	ptfake+=track->pt();
 	fak3++;
-	if(debug) cout << "->   Track " << setw(2) << track.index() << " pT: " 
+	if(debug) cout << "->   Track " << setw(2) << track.key() << " pT: " 
 		       << setprecision(2) << setw(6) << track->pt() 
 		       <<  " matched to 0  MC Tracks" << endl;
 	
@@ -470,26 +470,26 @@ FakeEval::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   //FOURTH COLLECTION
   if (Iter>3){
     InputTag tkTagFourth    = conf_.getParameter<InputTag>("FourthTrackCollection");
-    Handle<TrackCollection> tkFourthCollection;
+    Handle<edm::View<reco::Track> > tkFourthCollection;
     iEvent.getByLabel( tkTagFourth             , tkFourthCollection);
-    const TrackCollection  tCFourth = *(tkFourthCollection.product()); 
+    const edm::View<reco::Track>  tCFourth = *(tkFourthCollection.product()); 
 
     RecoToSimCollection pFourth = 
       associatorByHits->associateRecoToSim (tkFourthCollection,tpCollection,&iEvent );
     
     tot4+=tCFourth.size(); 
     
-    for(TrackCollection::size_type i=0; i<tCFourth.size(); ++i) {
+    for(edm::View<reco::Track>::size_type i=0; i<tCFourth.size(); ++i) {
      hpt_rec4->Fill(tCFourth[i].pt());
      hpt_rec4_red->Fill(tCFourth[i].pt());
      ptrec+=tCFourth[i].pt();
      ptrec4+=tCFourth[i].pt();
-     TrackRef track(tkFourthCollection, i);
+     edm::RefToBase<reco::Track> track(tkFourthCollection, i);
       
       
       try{ 
 	std::vector<std::pair<TrackingParticleRef, double> > tp = pFourth[track];
-	if(debug)    cout << "Reco Track " << setw(2) << track.index() 
+	if(debug)    cout << "Reco Track " << setw(2) << track.key() 
 			  << " pT: "  << setw(6) << track->pt() 
 			  <<  " matched to " << tp.size() 
 			  << " MC Tracks" << std::endl;
@@ -519,7 +519,7 @@ FakeEval::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	}
       } catch (Exception event) {
 	fak4++;
-	if(debug) cout << "->   Track " << setw(2) << track.index() << " pT: " 
+	if(debug) cout << "->   Track " << setw(2) << track.key() << " pT: " 
 		       << setprecision(2) << setw(6) << track->pt() 
 		       <<  " matched to 0  MC Tracks" << endl;
 	
