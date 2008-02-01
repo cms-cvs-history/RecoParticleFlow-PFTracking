@@ -86,4 +86,4 @@ sequence secondnuclear = {  secondnuclearSeed, secondnuclearTrackCandidates, sec
 sequence thirdnuclear = {  thirdnuclearSeed, thirdnuclearTrackCandidates, thirdnuclearWithMaterialTracks, thirdnuclearInteractionMaker } 
 sequence fourthnuclear = {  fourthnuclearSeed, fourthnuclearTrackCandidates, fourthnuclearWithMaterialTracks, fourthnuclearInteractionMaker } 
 
-sequence nuclearFlow = { firstnuclear, secondnuclear, thirdnuclear, fourthnuclear }
+sequence nuclear = { firstnuclear, secondnuclear, thirdnuclear, fourthnuclear }
