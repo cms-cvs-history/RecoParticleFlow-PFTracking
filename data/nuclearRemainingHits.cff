@@ -1,4 +1,4 @@
-include "RecoParticleFlow/PFTracking/data/nuclearFlow.cff"
+include "RecoParticleFlow/PFTracking/data/nuclear.cff"
 
 ##HIT REMOVAL
 module nuclearClusters = RemainingClusterProducer{
@@ -36,4 +36,4 @@ replace fourthnuclearSeed.MeasurementTrackerName="nuclearMeasurementTracker"
 ##TRAJECTORY BUILDER
 replace nuclearCkfTrajectoryBuilder.MeasurementTrackerName = "nuclearMeasurementTracker"
 
-sequence nuclearRemainingHits = { nuclearClusters, nuclearPixelRecHits, nuclearStripRecHits, nuclearFlow }
+sequence nuclearRemainingHits = { nuclearClusters, nuclearPixelRecHits, nuclearStripRecHits, nuclear }
