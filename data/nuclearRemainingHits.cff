@@ -2,12 +2,11 @@ include "RecoParticleFlow/PFTracking/data/nuclear.cff"
 
 ##HIT REMOVAL
 module nuclearClusters = RemainingClusterProducer{
-     InputTag matchedRecHits    = siStripMatchedRecHits:matchedRecHit
-     InputTag rphirecHits       = siStripMatchedRecHits:rphiRecHit
-     InputTag stereorecHits     = siStripMatchedRecHits:stereoRecHit
-     InputTag pixelHits         = siPixelRecHits:
-     InputTag recTracks         = fourthvtxFilt:
-     double DistanceCut         = 0.1
+   InputTag matchedRecHits    = fourthStripRecHits:matchedRecHit
+   InputTag rphirecHits       = fourthStripRecHits:rphiRecHit
+   InputTag stereorecHits     = fourthStripRecHits:stereoRecHit
+   InputTag pixelHits         = fourthPixelRecHits:
+   InputTag recTracks         = fourthvtxFilt:
 }
 
 ##TRACKER HITS
