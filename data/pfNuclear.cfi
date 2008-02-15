@@ -5,4 +5,7 @@ module pfNuclear =PFNuclearProducer{
 	thirdnuclearInteractionMaker,
 	fourthnuclearInteractionMaker
     }
+
+    # cut on the likelihood of the nuclear interaction
+    double likelihoodCut = 0.1
 }
