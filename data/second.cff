@@ -60,6 +60,8 @@ es_module secondlayertriplets =  PixelLayerTripletsESProducer {
               double ptMin = 0.5
               double originRadius = 0.2
               double originHalfLength = 15.9 
+	    double originXPos = 0.0
+	    double originYPos = 0.0
               double originZPos = 0.0
               bool precise = true
            }

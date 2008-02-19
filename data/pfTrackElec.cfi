@@ -5,4 +5,5 @@ module pfTrackElec = PFElecTkProducer{
  string Propagator = "fwdElectronPropagator"
  string TTRHBuilder = "WithTrackAngle"
  bool TrajInEvents = true
+ bool ModeMomentum = true
 }
