@@ -12,7 +12,7 @@ replace firstnuclearTrackCandidates.RedundantSeedCleaner = "none"
 
 module firstnuclearWithMaterialTracks =
   ctfWithMaterialTracks from "RecoTracker/TrackProducer/data/CTFFinalFitWithMaterial.cfi"
-replace  firstnuclearWithMaterialTracks.src ="firstnuclearTrackCandidates"
+replace  firstnuclearWithMaterialTracks.src =firstnuclearTrackCandidates
 
 module firstnuclearInteractionMaker = nuclearInteractionMaker from 
                         "RecoVertex/NuclearInteractionProducer/data/NuclearInteraction.cfi"
@@ -32,7 +32,7 @@ replace secondnuclearTrackCandidates.RedundantSeedCleaner = "none"
 
 module secondnuclearWithMaterialTracks =
   ctfWithMaterialTracks from "RecoTracker/TrackProducer/data/CTFFinalFitWithMaterial.cfi"
-replace  secondnuclearWithMaterialTracks.src ="secondnuclearTrackCandidates"
+replace  secondnuclearWithMaterialTracks.src =secondnuclearTrackCandidates
 
 module secondnuclearInteractionMaker = nuclearInteractionMaker from
                         "RecoVertex/NuclearInteractionProducer/data/NuclearInteraction.cfi"
@@ -52,7 +52,7 @@ replace thirdnuclearTrackCandidates.RedundantSeedCleaner = "none"
 
 module thirdnuclearWithMaterialTracks =
   ctfWithMaterialTracks from "RecoTracker/TrackProducer/data/CTFFinalFitWithMaterial.cfi"
-replace  thirdnuclearWithMaterialTracks.src ="thirdnuclearTrackCandidates"
+replace  thirdnuclearWithMaterialTracks.src =thirdnuclearTrackCandidates
 
 module thirdnuclearInteractionMaker = nuclearInteractionMaker from
                         "RecoVertex/NuclearInteractionProducer/data/NuclearInteraction.cfi"
@@ -72,7 +72,7 @@ replace fourthnuclearTrackCandidates.RedundantSeedCleaner = "none"
 
 module fourthnuclearWithMaterialTracks =
   ctfWithMaterialTracks from "RecoTracker/TrackProducer/data/CTFFinalFitWithMaterial.cfi"
-replace  fourthnuclearWithMaterialTracks.src ="fourthnuclearTrackCandidates"
+replace  fourthnuclearWithMaterialTracks.src =fourthnuclearTrackCandidates
 
 module fourthnuclearInteractionMaker = nuclearInteractionMaker from
                         "RecoVertex/NuclearInteractionProducer/data/NuclearInteraction.cfi"
