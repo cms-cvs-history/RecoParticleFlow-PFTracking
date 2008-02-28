@@ -96,7 +96,7 @@ replace thirdTrackCandidates.TrajectoryBuilder = "thirdCkfTrajectoryBuilder"
 ##TRACKS
 module thirdWithMaterialTracks = 
   ctfWithMaterialTracks from "RecoTracker/TrackProducer/data/CTFFinalFitWithMaterial.cfi"
-replace  thirdWithMaterialTracks.src ="thirdTrackCandidates"       
+replace  thirdWithMaterialTracks.src =thirdTrackCandidates       
     
 
 

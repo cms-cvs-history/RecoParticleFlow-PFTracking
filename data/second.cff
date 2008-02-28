@@ -109,7 +109,7 @@ replace secondTrackCandidates.TrajectoryBuilder = "secondCkfTrajectoryBuilder"
 ##TRACKS
 module secondWithMaterialTracks = 
   ctfWithMaterialTracks from "RecoTracker/TrackProducer/data/CTFFinalFitWithMaterial.cfi"
-replace  secondWithMaterialTracks.src ="secondTrackCandidates"       
+replace  secondWithMaterialTracks.src =secondTrackCandidates       
 
 
 

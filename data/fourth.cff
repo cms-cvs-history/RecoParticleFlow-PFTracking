@@ -99,7 +99,7 @@ replace fourthTrackCandidates.TrajectoryBuilder = "fourthCkfTrajectoryBuilder"
 ##TRACKS
 module fourthWithMaterialTracks = 
   ctfWithMaterialTracks from "RecoTracker/TrackProducer/data/CTFFinalFitWithMaterial.cfi"
-replace  fourthWithMaterialTracks.src ="fourthTrackCandidates"       
+replace  fourthWithMaterialTracks.src =fourthTrackCandidates       
     
 
 

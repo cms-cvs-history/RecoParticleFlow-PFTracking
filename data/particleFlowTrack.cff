@@ -11,10 +11,9 @@ replace gsfElCandidates.SeedLabel = "SeedsForGsf"
 module gsfPFtracks = GsfGlobalElectronTest from "TrackingTools/GsfTracking/data/GsfElectronFit.cfi"
 replace gsfPFtracks.Fitter = "GsfElectronFittingSmoother"
 replace gsfPFtracks.Propagator = "fwdElectronPropagator"
-replace gsfPFtracks.src = "gsfElCandidates"
+replace gsfPFtracks.src = gsfElCandidates
 replace gsfPFtracks.TTRHBuilder       =   "WithTrackAngle"
 replace gsfPFtracks.TrajectoryInEvent = true
-replace gsfPFtracks.producer = ""
 
 include "RecoParticleFlow/PFTracking/data/pfTrackElec.cfi"
 sequence particleFlowTrack={elecPreId,gsfElCandidates,gsfPFtracks,pfTrackElec}

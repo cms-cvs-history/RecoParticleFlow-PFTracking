@@ -36,7 +36,7 @@ replace firstTrackCandidates.TrajectoryBuilder = "firstCkfTrajectoryBuilder"
 ##TRACKS
 module firstWithMaterialTracks = 
   ctfWithMaterialTracks from "RecoTracker/TrackProducer/data/CTFFinalFitWithMaterial.cfi"
-replace  firstWithMaterialTracks.src ="firstTrackCandidates"   
+replace  firstWithMaterialTracks.src =firstTrackCandidates   
 
 ##FILTER
 module firstvtxFilt=VertexFilter{
