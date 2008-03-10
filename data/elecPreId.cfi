@@ -31,4 +31,6 @@ module elecpreid = GoodSeedProducer {
     untracked bool UseTMVA = false
     string TMVAMethod ="BDT"
     string Weights ="RecoParticleFlow/PFTracking/data/BDT_weights.txt"
+    bool UseQuality = true
+    string TrackQuality ="highPurity"
 }
