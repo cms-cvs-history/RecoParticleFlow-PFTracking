@@ -6,13 +6,11 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+
 
 class PFTrackTransformer;
 class GsfTrack;
 class PFRecTrack;
-
 
 /// \brief Abstract
 /*!
@@ -40,15 +38,11 @@ class PFElecTkProducer : public edm::EDProducer {
       ///Produce the PFRecTrack collection
       virtual void produce(edm::Event&, const edm::EventSetup&);
 
-    
-      int FindPfRef(const reco::PFRecTrackCollection & PfRTkColl, 
-		    reco::GsfTrack);
  
       // ----------member data ---------------------------
   
       edm::ParameterSet conf_;
-      edm::InputTag gsfTrackLabel_;
-      edm::InputTag pfTrackLabel_;
+      std::string gsfTrackModule_;
 
       ///PFTrackTransformer
       PFTrackTransformer *pfTransformer_; 
