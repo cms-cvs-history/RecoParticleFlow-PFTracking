@@ -7,14 +7,13 @@ module elecpreid = GoodSeedProducer {
     
     
     VInputTag TkColList={
-  	firstvtxFilt,
-	secondvtxFilt,
-	thirdvtxFilt,
-	fourthvtxFilt
+	generalTracks,
+	secStep,
+	thStep
     }
 
-    InputTag PFEcalClusterLabel = particleFlowClusterECAL
-    InputTag PFPSClusterLabel = particleFlowClusterPS	
+    InputTag PFEcalClusterLabel = particleFlowCluster:ECAL
+    InputTag PFPSClusterLabel = particleFlowCluster:PS	
     
     int32 NHitsInSeed =3
     double ClusterThreshold=0.5
