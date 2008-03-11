@@ -1,8 +1,9 @@
 module lightpftrackprod =LightPFTrackProducer{
     VInputTag TkColList={
-  	firstvtxFilt,
-	secondvtxFilt,
-	thirdvtxFilt,
-	fourthvtxFilt
+	generalTracks,
+	secStep,
+	thStep
     }
+    bool UseQuality = true
+    string TrackQuality ="highPurity"
 }

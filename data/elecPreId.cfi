@@ -12,8 +12,8 @@ module elecpreid = GoodSeedProducer {
 	thStep
     }
 
-    InputTag PFEcalClusterLabel = particleFlowCluster:ECAL
-    InputTag PFPSClusterLabel = particleFlowCluster:PS	
+    InputTag PFEcalClusterLabel = particleFlowClusterECAL
+    InputTag PFPSClusterLabel = particleFlowClusterPS	
     
     int32 NHitsInSeed =3
     double ClusterThreshold=0.5
