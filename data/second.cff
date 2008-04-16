@@ -73,7 +73,7 @@ es_module secondlayertriplets =  PixelLayerTripletsESProducer {
         PSet OrderedHitsFactoryPSet = {
             string ComponentName = "StandardHitTripletGenerator"
             string SeedingLayers = "SecondLayerTriplets"
-            using GeneratorPSetBlock
+            PSet GeneratorPSet = { using PixelTripletHLTGenerator }
         }
     }
 

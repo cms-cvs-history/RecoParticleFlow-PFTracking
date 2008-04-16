@@ -14,7 +14,7 @@ module firstTriplets = SeedGeneratorFromRegionHitsEDProducer {
     PSet OrderedHitsFactoryPSet = {
 	string ComponentName = "StandardHitTripletGenerator"
 	string SeedingLayers = "PixelLayerTriplets"
-	using GeneratorPSetBlock
+        PSet GeneratorPSet = { using PixelTripletHLTGenerator }
     }
 }
 
