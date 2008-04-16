@@ -1,4 +1,6 @@
 ##HIT REMOVAL
+include "RecoPixelVertexing/PixelTriplets/data/PixelTripletHLTGenerator.cfi"
+
 module secondClusters = RemainingClusterProducer{
     InputTag matchedRecHits    = siStripMatchedRecHits:matchedRecHit
     InputTag rphirecHits       = siStripMatchedRecHits:rphiRecHit
@@ -71,7 +73,7 @@ es_module secondlayertriplets =  PixelLayerTripletsESProducer {
         PSet OrderedHitsFactoryPSet = {
             string ComponentName = "StandardHitTripletGenerator"
             string SeedingLayers = "SecondLayerTriplets"
-            include "RecoPixelVertexing/PixelTriplets/data/PixelTripletHLTGenerator.cfi"
+            PSet GeneratorPSet = { using PixelTripletHLTGenerator }
         }
     }
 

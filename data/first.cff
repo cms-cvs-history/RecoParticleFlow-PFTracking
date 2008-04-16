@@ -1,17 +1,20 @@
+include "RecoTracker/TkTrackingRegions/data/GlobalTrackingRegion.cfi"
+include "RecoPixelVertexing/PixelTriplets/data/PixelTripletHLTGenerator.cfi"
+
 module firstTriplets = SeedGeneratorFromRegionHitsEDProducer {
     
     string TTRHBuilder = "WithTrackAngle"
     
     PSet RegionFactoryPSet = {
 	string ComponentName = "GlobalRegionProducer"
-	include "RecoTracker/TkTrackingRegions/data/GlobalTrackingRegion.cfi"
+	using RegionPSetBlock
     }
     
     PSet SeedComparitorPSet = { string ComponentName = "none" }
     PSet OrderedHitsFactoryPSet = {
 	string ComponentName = "StandardHitTripletGenerator"
 	string SeedingLayers = "PixelLayerTriplets"
-	include "RecoPixelVertexing/PixelTriplets/data/PixelTripletHLTGenerator.cfi"
+        PSet GeneratorPSet = { using PixelTripletHLTGenerator }
     }
 }
 
