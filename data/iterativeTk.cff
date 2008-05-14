@@ -1,9 +1,0 @@
-include "RecoTracker/Configuration/data/RecoTracker.cff"
-include "RecoParticleFlow/PFTracking/data/first.cff"
-include "RecoParticleFlow/PFTracking/data/second.cff"
-include "RecoParticleFlow/PFTracking/data/third.cff"
-include "RecoParticleFlow/PFTracking/data/fourth.cff"
-sequence iterativeTk={
- first,second,third,fourth
-}
-
