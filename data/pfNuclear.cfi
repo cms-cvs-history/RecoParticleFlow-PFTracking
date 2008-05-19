@@ -2,8 +2,7 @@ module pfNuclear =PFNuclearProducer{
     VInputTag nuclearColList={
   	firstnuclearInteractionMaker,
 	secondnuclearInteractionMaker,
-	thirdnuclearInteractionMaker,
-	fourthnuclearInteractionMaker
+	thirdnuclearInteractionMaker
     }
 
     # cut on the likelihood of the nuclear interaction

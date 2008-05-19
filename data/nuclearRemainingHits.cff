@@ -1,12 +1,19 @@
 include "RecoParticleFlow/PFTracking/data/nuclear.cff"
 
 ##HIT REMOVAL
-module nuclearClusters = RemainingClusterProducer{
-   InputTag matchedRecHits    = fourthStripRecHits:matchedRecHit
-   InputTag rphirecHits       = fourthStripRecHits:rphiRecHit
-   InputTag stereorecHits     = fourthStripRecHits:stereoRecHit
-   InputTag pixelHits         = fourthPixelRecHits:
-   InputTag recTracks         = fourthvtxFilt:
+#module nuclearClusters = RemainingClusterProducer{
+#   InputTag matchedRecHits    = fourthStripRecHits:matchedRecHit
+#   InputTag rphirecHits       = fourthStripRecHits:rphiRecHit
+#   InputTag stereorecHits     = fourthStripRecHits:stereoRecHit
+#   InputTag pixelHits         = fourthPixelRecHits:
+#   InputTag recTracks         = fourthvtxFilt:
+#}
+module nuclearClusters = TrackClusterRemover{
+     InputTag stripClusters = thClusters
+     InputTag pixelClusters = thClusters
+     InputTag trajectories  = thStep
+     InputTag oldClusterRemovalInfo = thClusters
+     PSet Common = { double maxChi2 = 30.0  }
 }
 
 ##TRACKER HITS
@@ -30,7 +37,6 @@ replace nuclearMeasurementTracker.stripClusterProducer = "nuclearClusters"
 replace firstnuclearSeed.MeasurementTrackerName="nuclearMeasurementTracker"
 replace secondnuclearSeed.MeasurementTrackerName="nuclearMeasurementTracker"
 replace thirdnuclearSeed.MeasurementTrackerName="nuclearMeasurementTracker"
-replace fourthnuclearSeed.MeasurementTrackerName="nuclearMeasurementTracker"
 
 ##TRAJECTORY BUILDER
 replace nuclearCkfTrajectoryBuilder.MeasurementTrackerName = "nuclearMeasurementTracker"
