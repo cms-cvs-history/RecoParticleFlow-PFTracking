@@ -2,11 +2,9 @@ include "RecoParticleFlow/PFTracking/data/elecPreId.cff"
 include "TrackingTools/GsfTracking/data/CkfElectronCandidates.cff"
 include "TrackingTools/GsfTracking/data/GsfElectrons.cff" 
 include "RecoParticleFlow/PFTracking/data/pfNuclear.cfi"
-include "RecoEgamma/EgammaElectronProducers/data/gsfElectronCkfTrackCandidateMaker.cff"
 
 module gsfElCandidates =  ckfTrackCandidates from "RecoTracker/CkfPattern/data/CkfTrackCandidates.cfi"
-#replace gsfElCandidates.TrajectoryBuilder    = "CkfElectronTrajectoryBuilder"
-replace gsfElCandidates.TrajectoryBuilder    = "TrajectoryBuilderForPixelMatchGsfElectrons"
+replace gsfElCandidates.TrajectoryBuilder    = "CkfElectronTrajectoryBuilder"
 replace gsfElCandidates.SeedProducer = "elecpreid"
 replace gsfElCandidates.SeedLabel = "SeedsForGsf"
 

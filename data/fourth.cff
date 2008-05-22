@@ -1,0 +1,126 @@
+include "RecoTracker/TransientTrackingRecHit/data/TransientTrackingRecHitBuilderWithoutRefit.cfi"
+##HIT REMOVAL
+module fourthClusters = RemainingClusterProducer{
+    InputTag matchedRecHits    = thirdStripRecHits:matchedRecHit
+    InputTag rphirecHits       = thirdStripRecHits:rphiRecHit
+    InputTag stereorecHits     = thirdStripRecHits:stereoRecHit
+    InputTag pixelHits         = thirdPixelRecHits:
+    InputTag recTracks         = thirdvtxFilt:
+}
+
+##TRACKER HITS
+    
+module fourthPixelRecHits =
+  siPixelRecHits from "RecoLocalTracker/SiPixelRecHits/data/SiPixelRecHits.cfi"
+replace fourthPixelRecHits.src=fourthClusters:
+
+
+module fourthStripRecHits = 
+  siStripMatchedRecHits from "RecoLocalTracker/SiStripRecHitConverter/data/SiStripRecHitConverter.cfi"
+replace fourthStripRecHits.ClusterProducer = "fourthClusters"
+
+    
+
+##SEEDS
+es_module fourthlayerpairs =  MixedLayerPairsESProducer {
+
+  string ComponentName = "FourthLayerPairs"
+
+  vstring layerList = { "BPix1+BPix2", "BPix1+BPix3", "BPix2+BPix3",
+                        "BPix1+FPix1_pos", "BPix1+FPix1_neg", "BPix1+FPix2_pos", "BPix1+FPix2_neg",
+                        "BPix2+FPix1_pos", "BPix2+FPix1_neg", "BPix2+FPix2_pos", "BPix2+FPix2_neg",
+                        "FPix1_pos+FPix2_pos", "FPix1_neg+FPix2_neg",
+                        "FPix2_pos+TEC1_pos","FPix2_pos+TEC2_pos","TEC2_pos+TEC3_pos",
+                        "FPix2_neg+TEC1_neg","FPix2_neg+TEC2_neg","TEC2_neg+TEC3_neg"
+                        }
+
+  PSet BPix = {
+    string HitProducer = "fourthPixelRecHits"
+    string TTRHBuilder = "TTRHBuilderWithoutAngle4MixedPairs"
+    untracked bool useErrorsFromParam = true
+    double hitErrorRPhi = 0.0027
+    double hitErrorRZ   = 0.0060
+  }
+
+  PSet FPix = {
+    string HitProducer = "fourthPixelRecHits"
+    string TTRHBuilder = "TTRHBuilderWithoutAngle4MixedPairs"
+    untracked bool useErrorsFromParam = true
+    double hitErrorRPhi = 0.0051
+    double hitErrorRZ   = 0.0036
+  }
+
+  PSet TEC = {
+    InputTag matchedRecHits = fourthStripRecHits:matchedRecHit
+    string TTRHBuilder        =  "WithTrackAngle"
+    untracked bool useRingSlector = true
+    int32 minRing = 1
+    int32 maxRing = 2
+  }
+
+}
+
+
+
+module  fourthMixedSeeds =
+  globalMixedSeeds from "RecoTracker/TkSeedGenerator/data/GlobalMixedSeeds.cfi"
+replace fourthMixedSeeds.OrderedHitsFactoryPSet.SeedingLayers = "FourthLayerPairs"
+replace fourthMixedSeeds.RegionFactoryPSet.RegionPSet.ptMin=0.3
+
+##TRAJECTORY MEASUREMENT
+es_module fourthMeasurementTracker =
+   MeasurementTracker from "RecoTracker/MeasurementDet/data/MeasurementTrackerESProducer.cfi"
+replace fourthMeasurementTracker.ComponentName = "fourthMeasurementTracker"
+replace fourthMeasurementTracker.pixelClusterProducer = "fourthClusters"
+replace fourthMeasurementTracker.stripClusterProducer = "fourthClusters"
+
+##TRAJECTORY FILTER
+es_module fourthCkfTrajectoryFilter = trajectoryFilterESProducer from "TrackingTools/TrajectoryFiltering/data/TrajectoryFilterESProducer.cfi"
+replace fourthCkfTrajectoryFilter.ComponentName = "fourthCkfTrajectoryFilter"
+replace fourthCkfTrajectoryFilter.filterPset.minimumNumberOfHits = 3
+replace fourthCkfTrajectoryFilter.filterPset.maxLostHits = 1
+replace fourthCkfTrajectoryFilter.filterPset.minPt   = 0.3
+
+
+##TRAJECTORY BUILDER
+es_module fourthCkfTrajectoryBuilder =
+   GroupedCkfTrajectoryBuilder from "RecoTracker/CkfPattern/data/GroupedCkfTrajectoryBuilderESProducer.cfi"
+replace fourthCkfTrajectoryBuilder.ComponentName = "fourthCkfTrajectoryBuilder"
+replace fourthCkfTrajectoryBuilder.MeasurementTrackerName = "fourthMeasurementTracker"
+replace fourthCkfTrajectoryBuilder.trajectoryFilterName = "fourthCkfTrajectoryFilter"
+
+##TRACK CANDIDATES
+module fourthTrackCandidates =
+   ckfTrackCandidates from "RecoTracker/CkfPattern/data/CkfTrackCandidates.cfi"
+replace fourthTrackCandidates.SeedProducer= "fourthMixedSeeds"
+replace fourthTrackCandidates.TrajectoryBuilder = "fourthCkfTrajectoryBuilder"
+
+
+##TRACKS
+module fourthWithMaterialTracks = 
+  ctfWithMaterialTracks from "RecoTracker/TrackProducer/data/CTFFinalFitWithMaterial.cfi"
+replace  fourthWithMaterialTracks.src =fourthTrackCandidates       
+    
+
+
+module fourthvtxFilt=VertexFilter{
+    bool VertexCut =true
+    InputTag recTracks     = fourthWithMaterialTracks:
+    int32 MinHits             = 3
+    double DistZFromVertex    = 0.1
+    double DistRhoFromVertex  = 0.1
+    double ChiCut             = 250000
+    InputTag recVertices      = pixelVertices:
+ 
+}
+
+
+sequence fourth ={
+    fourthClusters
+    ,fourthPixelRecHits
+    ,fourthStripRecHits
+    ,fourthMixedSeeds
+    ,fourthTrackCandidates
+    ,fourthWithMaterialTracks
+    ,fourthvtxFilt
+}

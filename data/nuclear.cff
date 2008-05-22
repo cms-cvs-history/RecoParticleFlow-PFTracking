@@ -2,7 +2,7 @@ include "RecoVertex/NuclearInteractionProducer/data/NuclearInteraction.cff"
 
 # FIRST NUCLEAR
 module firstnuclearSeed = nuclearSeed from "RecoTracker/NuclearSeedGenerator/data/NuclearSeed.cfi" 
-#replace firstnuclearSeed.producer = "firstfilter"
+replace firstnuclearSeed.producer = "firstvtxFilt"
 
 module firstnuclearTrackCandidates =
    ckfTrackCandidates from "RecoTracker/CkfPattern/data/CkfTrackCandidates.cfi"
@@ -16,14 +16,13 @@ replace  firstnuclearWithMaterialTracks.src =firstnuclearTrackCandidates
 
 module firstnuclearInteractionMaker = nuclearInteractionMaker from 
                         "RecoVertex/NuclearInteractionProducer/data/NuclearInteraction.cfi"
-#replace firstnuclearInteractionMaker.primaryProducer = "firstfilter"
+replace firstnuclearInteractionMaker.primaryProducer = "firstvtxFilt"
 replace firstnuclearInteractionMaker.seedsProducer = "firstnuclearSeed"
 replace firstnuclearInteractionMaker.secondaryProducer = "firstnuclearWithMaterialTracks"
-replace firstnuclearInteractionMaker.additionalSecondaryProducer="outInWithMaterialTracks"
 
 # SECOND NUCLEAR
 module secondnuclearSeed = nuclearSeed from "RecoTracker/NuclearSeedGenerator/data/NuclearSeed.cfi"
-replace secondnuclearSeed.producer = "secStep"
+replace secondnuclearSeed.producer = "secondvtxFilt"
 
 module secondnuclearTrackCandidates =
    ckfTrackCandidates from "RecoTracker/CkfPattern/data/CkfTrackCandidates.cfi"
@@ -37,14 +36,13 @@ replace  secondnuclearWithMaterialTracks.src =secondnuclearTrackCandidates
 
 module secondnuclearInteractionMaker = nuclearInteractionMaker from
                         "RecoVertex/NuclearInteractionProducer/data/NuclearInteraction.cfi"
-replace secondnuclearInteractionMaker.primaryProducer = "secStep"
+replace secondnuclearInteractionMaker.primaryProducer = "secondvtxFilt"
 replace secondnuclearInteractionMaker.seedsProducer = "secondnuclearSeed"
 replace secondnuclearInteractionMaker.secondaryProducer = "secondnuclearWithMaterialTracks"
-replace secondnuclearInteractionMaker.additionalSecondaryProducer="outInWithMaterialTracks"
 
 # THIRD NUCLEAR
 module thirdnuclearSeed = nuclearSeed from "RecoTracker/NuclearSeedGenerator/data/NuclearSeed.cfi"
-replace thirdnuclearSeed.producer = "thStep"
+replace thirdnuclearSeed.producer = "thirdvtxFilt"
 
 module thirdnuclearTrackCandidates =
    ckfTrackCandidates from "RecoTracker/CkfPattern/data/CkfTrackCandidates.cfi"
@@ -58,13 +56,34 @@ replace  thirdnuclearWithMaterialTracks.src =thirdnuclearTrackCandidates
 
 module thirdnuclearInteractionMaker = nuclearInteractionMaker from
                         "RecoVertex/NuclearInteractionProducer/data/NuclearInteraction.cfi"
-replace thirdnuclearInteractionMaker.primaryProducer = "thStep"
+replace thirdnuclearInteractionMaker.primaryProducer = "thirdvtxFilt"
 replace thirdnuclearInteractionMaker.seedsProducer = "thirdnuclearSeed"
 replace thirdnuclearInteractionMaker.secondaryProducer = "thirdnuclearWithMaterialTracks"
-replace thirdnuclearInteractionMaker.additionalSecondaryProducer="outInWithMaterialTracks"
+
+# second fourth
+module fourthnuclearSeed = nuclearSeed from "RecoTracker/NuclearSeedGenerator/data/NuclearSeed.cfi"
+replace fourthnuclearSeed.producer = "fourthvtxFilt"
+
+module fourthnuclearTrackCandidates =
+   ckfTrackCandidates from "RecoTracker/CkfPattern/data/CkfTrackCandidates.cfi"
+replace fourthnuclearTrackCandidates.SeedProducer= "fourthnuclearSeed"
+replace fourthnuclearTrackCandidates.TrajectoryBuilder = "nuclearCkfTrajectoryBuilder"
+replace fourthnuclearTrackCandidates.RedundantSeedCleaner = "none"
+
+module fourthnuclearWithMaterialTracks =
+  ctfWithMaterialTracks from "RecoTracker/TrackProducer/data/CTFFinalFitWithMaterial.cfi"
+replace  fourthnuclearWithMaterialTracks.src =fourthnuclearTrackCandidates
+
+module fourthnuclearInteractionMaker = nuclearInteractionMaker from
+                        "RecoVertex/NuclearInteractionProducer/data/NuclearInteraction.cfi"
+replace fourthnuclearInteractionMaker.primaryProducer = "fourthvtxFilt"
+replace fourthnuclearInteractionMaker.seedsProducer = "fourthnuclearSeed"
+replace fourthnuclearInteractionMaker.secondaryProducer = "fourthnuclearWithMaterialTracks"
+
 
 sequence firstnuclear = {  firstnuclearSeed, firstnuclearTrackCandidates, firstnuclearWithMaterialTracks, firstnuclearInteractionMaker } 
 sequence secondnuclear = {  secondnuclearSeed, secondnuclearTrackCandidates, secondnuclearWithMaterialTracks, secondnuclearInteractionMaker } 
 sequence thirdnuclear = {  thirdnuclearSeed, thirdnuclearTrackCandidates, thirdnuclearWithMaterialTracks, thirdnuclearInteractionMaker } 
+sequence fourthnuclear = {  fourthnuclearSeed, fourthnuclearTrackCandidates, fourthnuclearWithMaterialTracks, fourthnuclearInteractionMaker } 
 
-sequence nuclear = { firstnuclear, secondnuclear, thirdnuclear }
+sequence nuclear = { firstnuclear, secondnuclear, thirdnuclear, fourthnuclear }
