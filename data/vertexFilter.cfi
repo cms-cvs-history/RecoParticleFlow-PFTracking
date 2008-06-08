@@ -7,6 +7,7 @@ module vertFilter=VertexFilter{
     double ChiCut             = 130
     InputTag recVertices      = pixelVertices:
     bool UseQuality = true
-    string TrackQuality ="highPurity"
+    vstring TrackQualities ={"loose","tight",
+	      "highPurity"}
     string TrackAlgorithm="iter2"   
 }
