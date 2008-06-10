@@ -6,7 +6,7 @@ module pfTrackElec = PFElecTkProducer{
     string TTRHBuilder = "WithTrackAngle"
     bool TrajInEvents = true
     bool ModeMomentum = true
-    bool AddGSFTkColl = false
+    bool AddGSFTkColl = true
     VInputTag GsfColList ={
 	pixelMatchGsfFit
     }
