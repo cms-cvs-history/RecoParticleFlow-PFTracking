@@ -1,9 +1,0 @@
-module lightpftrackprod =LightPFTrackProducer{
-    VInputTag TkColList={
-	generalTracks,
-	secStep,
-	thStep
-    }
-    bool UseQuality = true
-    string TrackQuality ="highPurity"
-}
