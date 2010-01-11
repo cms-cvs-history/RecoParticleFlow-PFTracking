@@ -72,6 +72,9 @@ class GoodSeedProducer : public edm::EDProducer {
       ///Name of the Seed(Gsf) Collection
       std::string preidgsf_;
 
+      ///Name of the preid Collection (FB)
+      std::string preidname_;
+
       ///Fitter
       edm::ESHandle<TrajectoryFitter> fitter_;
 
@@ -112,6 +115,9 @@ class GoodSeedProducer : public edm::EDProducer {
 
       ///Produce the PFtracks for Ckf tracks? 
       bool produceCkfPFT_;
+
+      ///Produce the pre-id debugging collection 
+      bool producePreId_;
 
       ///vector of thresholds for different bins of eta and pt
       float thr[150];

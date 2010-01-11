@@ -16,6 +16,8 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PreId.h"
+#include "DataFormats/ParticleFlowReco/interface/PreIdFwd.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
 #include "TrackingTools/PatternTools/interface/TrajectorySmoother.h"
@@ -63,7 +65,6 @@ GoodSeedProducer::GoodSeedProducer(const ParameterSet& iConfig):
    maxHoverP_= iConfig.getParameter<double>("HOverPLead_maxValue");
  
   //
-
   pfCLusTagECLabel_=
     iConfig.getParameter<InputTag>("PFEcalClusterLabel");
 
@@ -73,13 +74,13 @@ GoodSeedProducer::GoodSeedProducer(const ParameterSet& iConfig):
   pfCLusTagPSLabel_=
     iConfig.getParameter<InputTag>("PFPSClusterLabel");
   
-  preidgsf_=iConfig.getParameter<string>("PreGsfLabel");
-  preidckf_=iConfig.getParameter<string>("PreCkfLabel");
+  preidgsf_ = iConfig.getParameter<string>("PreGsfLabel");
+  preidckf_ = iConfig.getParameter<string>("PreCkfLabel");
+  preidname_= iConfig.getParameter<string>("PreIdLabel");
   
   
   fitterName_ = iConfig.getParameter<string>("Fitter");
   smootherName_ = iConfig.getParameter<string>("Smoother");
-  
   
   
   nHitsInSeed_=iConfig.getParameter<int>("NHitsInSeed");
@@ -92,8 +93,12 @@ GoodSeedProducer::GoodSeedProducer(const ParameterSet& iConfig):
   //collection to produce
   produceCkfseed_ = iConfig.getUntrackedParameter<bool>("ProduceCkfSeed",false);
   produceCkfPFT_ = iConfig.getUntrackedParameter<bool>("ProduceCkfPFTracks",true);  
+  std::cout << " before producePreId" << std::endl;
+  producePreId_ = iConfig.getUntrackedParameter<bool>("ProducePreId",true);  
+
 
   LogDebug("GoodSeedProducer")<<"Seeds for GSF will be produced ";
+  std::cout << " produce ElectronSeed" << std::endl;
   produces<ElectronSeedCollection>(preidgsf_);
 
   if(produceCkfseed_){
@@ -106,13 +111,20 @@ GoodSeedProducer::GoodSeedProducer(const ParameterSet& iConfig):
     produces<PFRecTrackCollection>();
   }
 
-
+  if(producePreId_){
+    LogDebug("GoodSeedProducer")<<"PreId debugging information will be produced ";
+    std::cout << " Producing " << std::endl;
+    produces<PreIdCollection>(preidname_);
+    std::cout << " done " << std::endl;
+  } 
+  
   useQuality_   = iConfig.getParameter<bool>("UseQuality");
   trackQuality_=TrackBase::qualityByName(iConfig.getParameter<std::string>("TrackQuality"));
 
   useTmva_= iConfig.getUntrackedParameter<bool>("UseTMVA",false);
   
   usePreshower_ = iConfig.getParameter<bool>("UsePreShower");
+  std::cout << " GoodSeedProducer - initialized" << std::endl;
 }
 
 
@@ -121,6 +133,7 @@ GoodSeedProducer::~GoodSeedProducer()
   
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.) 
+  std::cout << "Deleting GoodSeedProducer " << std::endl;
   delete pfTransformer_;
 }
 
@@ -136,13 +149,12 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
   
   LogDebug("GoodSeedProducer")<<"START event: "<<iEvent.id().event()
 			      <<" in run "<<iEvent.id().run();
-  
   //Create empty output collections
   auto_ptr<ElectronSeedCollection> output_preid(new ElectronSeedCollection);
   auto_ptr<TrajectorySeedCollection> output_nopre(new TrajectorySeedCollection);
   auto_ptr< PFRecTrackCollection > 
     pOutputPFRecTrackCollection(new PFRecTrackCollection);
-  
+  auto_ptr<PreIdCollection> output_preidinfo(new PreIdCollection);
   
   //Tracking Tools
   iSetup.get<TrajectoryFitter::Record>().get(fitterName_, fitter_);
@@ -204,6 +216,9 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
     for(uint i=0;i<Tk.size();i++){		
       if (useQuality_ &&
 	  (!(Tk[i].quality(trackQuality_)))) continue;
+      
+      reco::PreId myPreId;
+
       int ipteta=getBin(Tk[i].eta(),Tk[i].pt());
       int ibin=ipteta*8;
       TrackRef trackRef(tkRefCollection, i);
@@ -216,7 +231,8 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
       int nhitpi=Tj[i].foundHits();
       float EP=0;
       
-      
+      // set track info
+      myPreId.setTrack(trackRef,Tk[i].eta(),Tk[i].pt(),chikfred,nhitpi);
       //CLUSTERS - TRACK matching
       
       float pfmass=  0.0005;
@@ -244,14 +260,19 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
       float EE=0;
       float feta=0;
       math::XYZPointF ElecTrkEcalPos(0,0,0);
+      PFClusterRef clusterRef;
+      math::XYZPoint meanShowerSaved;
       if(theOutParticle.getSuccess()!=0){
 	ElecTrkEcalPos=math::XYZPointF(theOutParticle.vertex().x(),
 				       theOutParticle.vertex().y(),
 				       theOutParticle.vertex().z());
 	bool isBelowPS=(fabs(theOutParticle.vertex().eta())>1.65) ? true :false;	
 	
+	unsigned clusCounter=0;
+
 	for(vector<PFCluster>::const_iterator aClus = basClus.begin();
-	    aClus != basClus.end(); aClus++) {
+	    aClus != basClus.end(); aClus++,++clusCounter) {
+	  
 	  double ecalShowerDepth
 	    = PFCluster::getDepthCorrection(aClus->energy(),
 						  isBelowPS,
@@ -275,6 +296,8 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	    EP=tmp_ep;
 	    EE=aClus->energy();
 	    feta= aClus->position().eta();
+	    clusterRef = PFClusterRef(theECPfClustCollection,clusCounter);
+	    meanShowerSaved = meanShower;
 	  }
 	}
       }
@@ -295,12 +318,14 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
       float chi2cut=thr[ibin+0];
       float ep_cutmin=thr[ibin+1];
       bool GoodMatching= ((chichi<chi2cut) &&(EP>ep_cutmin) && (nhitpi>10));
-  
+      bool EcalMatching=GoodMatching;
+      
       if (Tk[i].pt()>maxPt_) GoodMatching=true;
       if (Tk[i].pt()<minPt_) GoodMatching=false;
 
       //ENDCAP
       //USE OF PRESHOWER 
+      bool GoodPSMatching=false;
       if ((fabs(Tk[i].eta())>1.68)&&(usePreshower_)){
         int iptbin =4*getBin(Tk[i].pt());
 	ps2En=0;ps1En=0;
@@ -310,7 +335,7 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
         float p2e=thrPS[iptbin+1];
         float p1c=thrPS[iptbin+2];
         float p2c=thrPS[iptbin+3];
-	bool GoodPSMatching= 
+	GoodPSMatching= 
 	  ((ps2En>p2e)
 	   &&(ps1En>p1e)
 	   &&(ps1chi<p1c)
@@ -318,6 +343,11 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	GoodMatching = (GoodMatching && GoodPSMatching);
       }
   
+      math::XYZPoint myPoint(ElecTrkEcalPos.X(),ElecTrkEcalPos.Y(),ElecTrkEcalPos.Z());
+      myPreId.setCaloMatching(clusterRef,myPoint,meanShowerSaved,toteta,totphi,chieta,
+			      chiphi,chichi,EP,
+			      EcalMatching,GoodPSMatching);
+
       if(applyIsolation_){
         if(IsIsolated(float(Tk[i].charge()),Tk[i].p(),
 	   	    ElecTrkEcalPos,*theECPfClustCollection,*theHCPfClustCollection)) 
@@ -380,6 +410,7 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	  
 	  float BDTcut=thr[ibin+4]; 
 	  if ( Ytmva>BDTcut) GoodTkId=true;
+	  myPreId.setTrackId(GoodKFFiltering,chired,chiRatio,dpt,Ytmva);
 	}else{ 
 	  
 	  
@@ -395,8 +426,8 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
       }
     
       bool GoodPreId= (GoodTkId || GoodMatching); 
-   
 
+      myPreId.setFinalDecision(GoodPreId);
       
       if(GoodPreId)
 	LogDebug("GoodSeedProducer")<<"Track (pt= "<<Tk[i].pt()<<
@@ -442,6 +473,7 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	  
 	}
       }
+      output_preidinfo->push_back(myPreId);
     } //end loop on track collection
   } //end loop on the vector of track collections
   if(produceCkfPFT_){
@@ -451,6 +483,10 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
   iEvent.put(output_preid,preidgsf_);
   if (produceCkfseed_)
     iEvent.put(output_nopre,preidckf_);
+  if(producePreId_)
+    {
+      iEvent.put(output_preidinfo,preidname_);
+    }
   
 }
 // ------------ method called once each job just before starting event loop  ------------
@@ -500,7 +536,7 @@ GoodSeedProducer::beginRun(edm::Run & run,
     FileInPath parPSFile(conf_.getParameter<string>("PSThresholdFile"));
     ifstream ifsPS(parPSFile.fullPath().c_str());
     for (int iy=0;iy<12;iy++) ifsPS >> thrPS[iy];
- 
+
 }
 
 void 
