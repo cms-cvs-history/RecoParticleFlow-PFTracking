@@ -93,12 +93,12 @@ GoodSeedProducer::GoodSeedProducer(const ParameterSet& iConfig):
   //collection to produce
   produceCkfseed_ = iConfig.getUntrackedParameter<bool>("ProduceCkfSeed",false);
   produceCkfPFT_ = iConfig.getUntrackedParameter<bool>("ProduceCkfPFTracks",true);  
-  std::cout << " before producePreId" << std::endl;
+
   producePreId_ = iConfig.getUntrackedParameter<bool>("ProducePreId",true);  
 
 
   LogDebug("GoodSeedProducer")<<"Seeds for GSF will be produced ";
-  std::cout << " produce ElectronSeed" << std::endl;
+
   produces<ElectronSeedCollection>(preidgsf_);
 
   if(produceCkfseed_){
@@ -113,9 +113,9 @@ GoodSeedProducer::GoodSeedProducer(const ParameterSet& iConfig):
 
   if(producePreId_){
     LogDebug("GoodSeedProducer")<<"PreId debugging information will be produced ";
-    std::cout << " Producing " << std::endl;
+
     produces<PreIdCollection>(preidname_);
-    std::cout << " done " << std::endl;
+
   } 
   
   useQuality_   = iConfig.getParameter<bool>("UseQuality");
@@ -124,7 +124,7 @@ GoodSeedProducer::GoodSeedProducer(const ParameterSet& iConfig):
   useTmva_= iConfig.getUntrackedParameter<bool>("UseTMVA",false);
   
   usePreshower_ = iConfig.getParameter<bool>("UsePreShower");
-  std::cout << " GoodSeedProducer - initialized" << std::endl;
+
 }
 
 
@@ -133,7 +133,7 @@ GoodSeedProducer::~GoodSeedProducer()
   
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.) 
-  std::cout << "Deleting GoodSeedProducer " << std::endl;
+
   delete pfTransformer_;
 }
 
