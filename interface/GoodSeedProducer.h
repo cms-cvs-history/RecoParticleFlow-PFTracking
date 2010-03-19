@@ -8,15 +8,12 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
-#include "DataFormats/ParticleFlowReco/interface/PreIdFwd.h"
-#include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "TMVA/Reader.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 /// \brief Abstract
@@ -63,10 +60,6 @@ class GoodSeedProducer : public edm::EDProducer {
 	              math::XYZPointF, 
                       const reco::PFClusterCollection &ecalColl,
                       const reco::PFClusterCollection &hcalColl);
-
-      void fillPreIdRefValueMap( edm::Handle<reco::TrackCollection> tkhandle,
-				 const edm::OrphanHandle<reco::PreIdCollection>&,
-				 edm::ValueMap<reco::PreIdRef>::Filler & filler);
       // ----------member data ---------------------------
 
       ///Vector of clusters of the PreShower
@@ -78,9 +71,6 @@ class GoodSeedProducer : public edm::EDProducer {
 
       ///Name of the Seed(Gsf) Collection
       std::string preidgsf_;
-
-      ///Name of the preid Collection (FB)
-      std::string preidname_;
 
       ///Fitter
       edm::ESHandle<TrajectoryFitter> fitter_;
@@ -123,15 +113,6 @@ class GoodSeedProducer : public edm::EDProducer {
       ///Produce the PFtracks for Ckf tracks? 
       bool produceCkfPFT_;
 
-      ///  switch to disable the pre-id
-      bool disablePreId_;
-
-      ///Produce the pre-id debugging collection 
-      bool producePreId_;
-      
-      /// Threshold to save Pre Idinfo
-      double PtThresholdSavePredId_;
-
       ///vector of thresholds for different bins of eta and pt
       float thr[150];
       float thrPS[20];
@@ -172,9 +153,5 @@ class GoodSeedProducer : public edm::EDProducer {
 
       ///Use of Preshower clusters
       bool usePreshower_;
-
-      /// Map used to create the TrackRef, PreIdRef value map
-      std::map<reco::TrackRef,unsigned> refMap_;
-     
 };
 #endif
