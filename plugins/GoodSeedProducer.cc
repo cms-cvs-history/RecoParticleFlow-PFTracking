@@ -22,7 +22,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PreId.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
+#include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
 #include "TrackingTools/PatternTools/interface/TrajectorySmoother.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"  
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h" 
@@ -576,7 +576,7 @@ GoodSeedProducer::beginRun(edm::Run & run,
   resMapPhiECAL_ = new PFResolutionMap("ECAL_phi",ecalPhiMap.fullPath().c_str());
 
   if(useTmva_){
-    reader = new TMVA::Reader();
+    reader = new TMVA::Reader("!Color:Silent");
     method_ = conf_.getParameter<string>("TMVAMethod");
     
     reader->AddVariable("eP",&eP);
