@@ -43,6 +43,13 @@
 #include "RecoParticleFlow/PFClusterTools/interface/LinkByRecHit.h"
 #include "RecoParticleFlow/PFClusterTools/interface/ClusterClusterMapping.h"
 
+// (AA)
+#include "RecoParticleFlow/PFClusterTools/interface/LinkByDetId.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+
+
+
 #include "TMath.h"
 using namespace std;
 using namespace edm;
@@ -98,6 +105,9 @@ PFElecTkProducer::PFElecTkProducer(const ParameterSet& iConfig):
   dphiGsfSC_ = iConfig.getParameter<double>("MinDPhiGsfSC");
   SCEne_ = iConfig.getParameter<double>("MinSCEnergy");
   
+  // flag for running on AOD inputs (AA)
+  runOnAOD_ = iConfig.getParameter<bool>("runOnAOD");
+
   // set parameter for convBremFinder
   useConvBremFinder_ =     iConfig.getParameter<bool>("useConvBremFinder");
   mvaConvBremFinderID_
@@ -105,7 +115,6 @@ PFElecTkProducer::PFElecTkProducer(const ParameterSet& iConfig):
   
   string mvaWeightFileConvBrem
     = iConfig.getParameter<string>("pf_convBremFinderID_mvaWeightFile");
-  
   
   if(useConvBremFinder_) 
     path_mvaWeightFileConvBrem_ = edm::FileInPath ( mvaWeightFileConvBrem.c_str() ).fullPath();
@@ -215,23 +224,38 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
   vector<reco::GsfPFRecTrack> selGsfPFRecTracks;
   vector<reco::GsfPFRecTrack> primaryGsfPFRecTracks;
   std::map<unsigned int, std::vector<reco::GsfPFRecTrack> >  GsfPFMap;
-  
 
   for (unsigned int igsf=0; igsf<gsftracks.size();igsf++) {
-    
+
     GsfTrackRef trackRef(gsftrackscoll, igsf);
 
-    int kf_ind=FindPfRef(PfRTkColl,gsftracks[igsf],false);
-    
-    if (kf_ind>=0) {
+//    int kf_ind=FindPfRef(PfRTkColl,gsftracks[igsf],false);
+
+//    if (kf_ind>=0) {
+
+
+    reco::TrackRef ctfTkRef;
+
+    if (&(*(trackRef->seedRef())) != 0) { // is this check redundant? (AA)
+
+      ElectronSeedRef ElSeeRef = trackRef->extra()->seedRef().castTo<ElectronSeedRef>();
+
+      // CASE 1: the electron SEED does not have a reference to a ctf track
+      if (ElSeeRef->ctfTrack().isNull()) ctfTkRef = trackRef->gsfExtra()->MatchedCtfTrack();
+      // CASE 2: the electron SEED has a reference to a ctf track 
+      else ctfTkRef = ElSeeRef->ctfTrack();
+    }
+
+
+    if (ctfTkRef.isNonnull()) {
       
-      PFRecTrackRef kf_ref(thePfRecTrackCollection,
-			   kf_ind);
+      int kf_ind = FindPfTkIndex(PfRTkColl, ctfTkRef);
+      PFRecTrackRef kf_ref(thePfRecTrackCollection, kf_ind);
 
       // remove fifth step tracks
       if( useFifthStepForEcalDriven_ == false
 	  || useFifthStepForTrackDriven_ == false) {
-	bool isFifthStepTrack = isFifthStep(kf_ref);
+	bool isFifthStepTrack = isFifthStep(ctfTkRef);
 	bool isEcalDriven = true;
 	bool isTrackerDriven = true;
 	
@@ -302,7 +326,7 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
     if(validgsfbrem && passSel) 
       selGsfPFRecTracks.push_back(pftrack_);
   }
-  
+
 
   unsigned int count_primary = 0;
   if(selGsfPFRecTracks.size() > 0) {
@@ -329,7 +353,7 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	    selGsfPFRecTracks[ipfgsf].addConvBremPFRecTrackRef(convBremPFRecTracks[ii]);
 	  }
 	}
-	
+  
 	// save primaries gsf tracks
 	//	gsfPFRecTrackCollection->push_back(selGsfPFRecTracks[ipfgsf]);
 	primaryGsfPFRecTracks.push_back(selGsfPFRecTracks[ipfgsf]);
@@ -389,8 +413,8 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
       }
     }
   }
-  
-  
+
+
   const edm::OrphanHandle<GsfPFRecTrackCollection> gsfPfRefProd = 
     iEvent.put(gsfPFRecTrackCollectionSecondary,"Secondary");
   
@@ -406,6 +430,7 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
   selGsfPFRecTracks.clear();
   GsfPFMap.clear();
   primaryGsfPFRecTracks.clear();
+
 }
 
 // create the secondary GsfPFRecTracks Ref
@@ -427,6 +452,11 @@ PFElecTkProducer::createGsfPFRecTrackRef(const edm::OrphanHandle<reco::GsfPFRecT
 
   return;
 }
+
+/*
+// This method is deprecated for the case when we store the ctf track matched to
+// the gsf one in gsfExtra (AA)
+
 // ------------- method for find the corresponding kf pfrectrack ---------------------
 int
 PFElecTkProducer::FindPfRef(const reco::PFRecTrackCollection  & PfRTkColl, 
@@ -438,6 +468,9 @@ PFElecTkProducer::FindPfRef(const reco::PFRecTrackCollection  & PfRTkColl,
   ElectronSeedRef ElSeedRef=gsftk.extra()->seedRef().castTo<ElectronSeedRef>();
   //CASE 1 ELECTRONSEED DOES NOT HAVE A REF TO THE CKFTRACK
   if (ElSeedRef->ctfTrack().isNull()){
+  
+  std::cout << "\n\nNo TRK ref \n";
+  
     reco::PFRecTrackCollection::const_iterator pft=PfRTkColl.begin();
     reco::PFRecTrackCollection::const_iterator pftend=PfRTkColl.end();
     unsigned int i_pf=0;
@@ -470,7 +503,10 @@ PFElecTkProducer::FindPfRef(const reco::PFRecTrackCollection  & PfRTkColl,
  	for(;hit!=hit_end;++hit){
 	  if (!(hit->isValid())) continue;
 	  if((*hhit)->sharesInput(&*(hit),TrackingRecHit::all))  ish++; 
-	//   if((hit->geographicalId()==(*hhit)->geographicalId())&&
+	//   if((hit->geographicalId()==(*hhit)
+
+
+//bool ->geographicalId())&&
         //     (((*hhit)->localPosition()-hit->localPosition()).mag()<0.01)) ish++;
  	}	
 	
@@ -492,6 +528,9 @@ PFElecTkProducer::FindPfRef(const reco::PFRecTrackCollection  & PfRTkColl,
     
     if((ish_max==0) || (dr_min>0.05))return -1;
     if(otherColl && (ish_max==0)) return -1;
+    
+    std::cout << "Best matches: " << ibest <<std::endl;
+    
     return ibest;
   }
   else{
@@ -510,13 +549,37 @@ PFElecTkProducer::FindPfRef(const reco::PFRecTrackCollection  & PfRTkColl,
     }
   }
   return -1;
+}PfRTkColl
+*/
+
+
+/// get the index of the PFRecTrack corresponding to the Track  
+int PFElecTkProducer::FindPfTkIndex(const reco::PFRecTrackCollection & PfRTkColl, 
+                                    reco::TrackRef & tkRef) {
+
+  int index = -1;
+
+  for ( unsigned int i=0; i < PfRTkColl.size(); ++i) {
+    
+    if (PfRTkColl[i].trackRef() == tkRef) {
+      index = i;
+      break;
+    }
+  }
+  return index;
 }
-bool PFElecTkProducer::isFifthStep(reco::PFRecTrackRef pfKfTrack) {
+
+
+
+
+//bool PFElecTkProducer::isFifthStep(reco::PFRecTrackRef pfKfTrack) {
+bool PFElecTkProducer::isFifthStep(reco::TrackRef kfref) {
 
   bool isFithStep = false;
   
 
-  TrackRef kfref = pfKfTrack->trackRef();
+//  TrackRef kfref = pfKfTrack->trackRef();
+  
   unsigned int Algo = 0; 
   switch (kfref->algo()) {
   case TrackBase::undefAlgorithm:
@@ -965,9 +1028,14 @@ PFElecTkProducer::isSharingEcalEnergyWithEgSC(const reco::GsfPFRecTrack& nGsfPFR
       // Angle preselection between the supercluster and pfclusters
       // this is needed just to save some cpu-time for this is hard-coded     
       if(deta < 0.5 && fabs(dphi) < 1.0) {
-	bool foundLink = false;
-	double distGsf = gsfPfTrack.extrapolatedPoint( reco::PFTrajectoryPoint::ECALShowerMax ).isValid() ?
-	  LinkByRecHit::testTrackAndClusterByRecHit(gsfPfTrack , clust ) : -1.;
+			bool foundLink = false;
+			double distGsf = -1.0;
+			if (gsfPfTrack.extrapolatedPoint( reco::PFTrajectoryPoint::ECALShowerMax ).isValid()) {
+				distGsf = runOnAOD_? 
+					LinkByDetId::testTrackAndClusterByDetId(gsfPfTrack , clust, caloGeometry_ ) : 
+					LinkByRecHit::testTrackAndClusterByRecHit(gsfPfTrack , clust );
+			}
+
 	// check if it touch the GsfTrack
 	if(distGsf > 0.) {
 	  if(nEcalDriven) 
@@ -983,8 +1051,13 @@ PFElecTkProducer::isSharingEcalEnergyWithEgSC(const reco::GsfPFRecTrack& nGsfPFR
 	  for(unsigned ipbrem = 0; ipbrem < primPFBrem.size(); ipbrem++) {
 	    if(primPFBrem[ipbrem].indTrajPoint() == 99) continue;
 	    const reco::PFRecTrack& pfBremTrack = primPFBrem[ipbrem];
-	    double dist = pfBremTrack.extrapolatedPoint( reco::PFTrajectoryPoint::ECALShowerMax ).isValid() ?
-	      LinkByRecHit::testTrackAndClusterByRecHit(pfBremTrack , clust, true ) : -1.;
+	    double dist = -1.0; 
+		 if (pfBremTrack.extrapolatedPoint( reco::PFTrajectoryPoint::ECALShowerMax ).isValid()) {
+		 dist = runOnAOD_?
+			 LinkByDetId::testTrackAndClusterByDetId(pfBremTrack , clust, caloGeometry_, true ) :
+	       LinkByRecHit::testTrackAndClusterByRecHit(pfBremTrack , clust, true );
+		 }
+			
 	    if(dist > 0.) {
 	      if(nEcalDriven) 
 		iEnergy += clust.energy();
@@ -1031,8 +1104,14 @@ PFElecTkProducer::isSharingEcalEnergyWithEgSC(const reco::GsfPFRecTrack& nGsfPFR
       if(ndeta < 0.5 && fabs(ndphi) < 1.0) {
 	bool foundNLink = false;
 	
-	double distGsf = nGsfPFRecTrack.extrapolatedPoint( reco::PFTrajectoryPoint::ECALShowerMax ).isValid() ?
-	  LinkByRecHit::testTrackAndClusterByRecHit(nGsfPFRecTrack , clust ) : -1.;
+	double distGsf = -1.0; 
+	if (nGsfPFRecTrack.extrapolatedPoint( reco::PFTrajectoryPoint::ECALShowerMax ).isValid() ) {
+	
+	distGsf = runOnAOD_?
+		LinkByDetId::testTrackAndClusterByDetId(nGsfPFRecTrack , clust, caloGeometry_ ) :
+		LinkByRecHit::testTrackAndClusterByRecHit(nGsfPFRecTrack , clust );
+	}
+
 	if(distGsf > 0.) {
 	  nPFCluster.push_back(clust);
 	  nEnergy += clust.energy();
@@ -1044,8 +1123,13 @@ PFElecTkProducer::isSharingEcalEnergyWithEgSC(const reco::GsfPFRecTrack& nGsfPFR
 	    if(primPFBrem[ipbrem].indTrajPoint() == 99) continue;
 	    const reco::PFRecTrack& pfBremTrack = primPFBrem[ipbrem];
 	    if(foundNLink == false) {
-	      double dist = pfBremTrack.extrapolatedPoint( reco::PFTrajectoryPoint::ECALShowerMax ).isValid() ?
-		LinkByRecHit::testTrackAndClusterByRecHit(pfBremTrack , clust, true ) : -1.;
+	      double dist = -1.0;
+			if (pfBremTrack.extrapolatedPoint( reco::PFTrajectoryPoint::ECALShowerMax ).isValid()) {
+				dist = runOnAOD_?
+					LinkByDetId::testTrackAndClusterByDetId(pfBremTrack , clust, caloGeometry_, true ) :
+					LinkByRecHit::testTrackAndClusterByRecHit(pfBremTrack , clust, true );
+			}
+			
 	      if(dist > 0.) {
 		nPFCluster.push_back(clust);
 		nEnergy += clust.energy();
@@ -1063,8 +1147,14 @@ PFElecTkProducer::isSharingEcalEnergyWithEgSC(const reco::GsfPFRecTrack& nGsfPFR
       // just to save cpu time, for this hard-coded
       if(ideta < 0.5 && fabs(idphi) < 1.0) {
 	bool foundILink = false;
-	double dist = iGsfPFRecTrack.extrapolatedPoint( reco::PFTrajectoryPoint::ECALShowerMax ).isValid() ?
-	  LinkByRecHit::testTrackAndClusterByRecHit(iGsfPFRecTrack , clust ) : -1.;
+
+	double dist = -1.0;
+	if (iGsfPFRecTrack.extrapolatedPoint( reco::PFTrajectoryPoint::ECALShowerMax ).isValid()) {
+		dist =  runOnAOD_?
+			LinkByDetId::testTrackAndClusterByDetId(iGsfPFRecTrack , clust, caloGeometry_ ) :
+			LinkByRecHit::testTrackAndClusterByRecHit(iGsfPFRecTrack , clust ) ;
+	}
+
 	if(dist > 0.) {
 	  iPFCluster.push_back(clust);
 	  iEnergy += clust.energy();
@@ -1076,7 +1166,11 @@ PFElecTkProducer::isSharingEcalEnergyWithEgSC(const reco::GsfPFRecTrack& nGsfPFR
 	    if(primPFBrem[ipbrem].indTrajPoint() == 99) continue;
 	    const reco::PFRecTrack& pfBremTrack = primPFBrem[ipbrem];
 	    if(foundILink == false) {
-	      double dist = LinkByRecHit::testTrackAndClusterByRecHit(pfBremTrack , clust, true );
+			 
+	      double dist = runOnAOD_? 
+				LinkByDetId::testTrackAndClusterByDetId(pfBremTrack , clust, caloGeometry_, true ) :
+				LinkByRecHit::testTrackAndClusterByRecHit(pfBremTrack , clust, true );
+
 	      if(dist > 0.) {
 		iPFCluster.push_back(clust);
 		iEnergy += clust.energy();
@@ -1175,16 +1269,20 @@ void
 PFElecTkProducer::beginRun(const edm::Run& run,
 			   const EventSetup& iSetup)
 {
+
+	// needed for cluster/track linking when running on AOD (AA)
+	ESHandle<CaloGeometry> caloGeoHandle;
+	iSetup.get<CaloGeometryRecord>().get(caloGeoHandle);
+	setCaloGeometry(caloGeoHandle.product());
+
   ESHandle<MagneticField> magneticField;
   iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
 
   ESHandle<TrackerGeometry> tracker;
   iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
 
-
   mtsTransform_ = MultiTrajectoryStateTransform(tracker.product(),magneticField.product());
   
-
   pfTransformer_= new PFTrackTransformer(math::XYZVector(magneticField->inTesla(GlobalPoint(0,0,0))));
   
   
@@ -1205,18 +1303,15 @@ PFElecTkProducer::beginRun(const edm::Run& run,
       throw invalid_argument( err );
     }
   }
-  convBremFinder_ = new ConvBremPFTrackFinder(thebuilder,mvaConvBremFinderID_,path_mvaWeightFileConvBrem_);
+  convBremFinder_ = new ConvBremPFTrackFinder(thebuilder,mvaConvBremFinderID_,path_mvaWeightFileConvBrem_, caloGeometry_);
 
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 PFElecTkProducer::endRun(const edm::Run& run,
-			 const EventSetup& iSetup) {
+         const EventSetup& iSetup) {
   delete pfTransformer_;
-  pfTransformer_=nullptr;
-  delete convBremFinder_;
-  convBremFinder_=nullptr;
 }
 
 //define this as a plug-in

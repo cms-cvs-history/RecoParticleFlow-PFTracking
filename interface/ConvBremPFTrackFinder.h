@@ -24,14 +24,21 @@
 #include "DataFormats/ParticleFlowReco/interface/PFV0.h"
 #include "TMVA/Reader.h"
 
+// needed for cluster/track linking when using DetId's(AA)
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+
 class PFEnergyCalibration;
 
 class ConvBremPFTrackFinder {
   
  public:
+  /// Constructor: when caloGeometry !=0 is passed the cluster-track linking is done
+  /// using detId's (sueteble for re-reco from AOD), else the linking is done by recHit 
   ConvBremPFTrackFinder(const TransientTrackBuilder& builder,
 			double mvaBremConvCut,
-			std::string mvaWeightFileConvBrem);  
+			std::string mvaWeightFileConvBrem,
+			const CaloGeometry* caloGeometry = 0);  
+       
   ~ConvBremPFTrackFinder();
   
   bool foundConvBremPFRecTrack(const edm::Handle<reco::PFRecTrackCollection>& thePfRecTrackCol,
@@ -82,4 +89,5 @@ class ConvBremPFTrackFinder {
 
   PFEnergyCalibration* pfcalib_;
 
+  const CaloGeometry* caloGeometry_;
 };

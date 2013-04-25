@@ -20,6 +20,7 @@ class PFTrackTransformer;
 class GsfTrack;
 class MagneticField;
 class TrackerGeometry;
+class CaloGeometry;
 class ConvBremPFTrackFinder;
 
 /// \brief Abstract
@@ -41,6 +42,8 @@ class PFElecTkProducer : public edm::EDProducer {
      ///Destructor
      ~PFElecTkProducer();
 
+	  void setCaloGeometry( const CaloGeometry* geo) { caloGeometry_ = geo; }
+
    private:
       virtual void beginRun(const edm::Run&,const edm::EventSetup&) override;
       virtual void endRun(const edm::Run&,const edm::EventSetup&) override;
@@ -49,10 +52,18 @@ class PFElecTkProducer : public edm::EDProducer {
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
     
-      int FindPfRef(const reco::PFRecTrackCollection & PfRTkColl, 
-		    reco::GsfTrack, bool);
+//      int FindPfRef(const reco::PFRecTrackCollection & PfRTkColl, 
+//        reco::GsfTrack, bool);
+
+      /// get the index of the PFRecTrack corresponding to tkRef (AA)  
+      int FindPfTkIndex(const reco::PFRecTrackCollection & PfRTkColl, 
+        reco::TrackRef & tkRef);
+        
+        
+        
       
-      bool isFifthStep(reco::PFRecTrackRef pfKfTrack);
+//      bool isFifthStep(reco::PFRecTrackRef pfKfTrack);
+      bool isFifthStep(reco::TrackRef kfTrack);  // for modified gsfEctra (AA)
 
       bool applySelection(reco::GsfTrack);
       
@@ -136,5 +147,12 @@ class PFElecTkProducer : public edm::EDProducer {
       bool useConvBremFinder_;
       double mvaConvBremFinderID_;
       std::string path_mvaWeightFileConvBrem_;
+
+		// needed for linking by DetID when running on AOD files (AA)
+		const CaloGeometry* caloGeometry_;
+
+		// switch for AOD inputs (AA)
+		bool runOnAOD_;
+
 };
 #endif

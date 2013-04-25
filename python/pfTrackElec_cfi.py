@@ -30,7 +30,10 @@ pfTrackElec = cms.EDProducer("PFElecTkProducer",
     useNuclear = cms.bool(False),
     useV0 = cms.bool(False), 
     useConversions = cms.bool(False),
-    debugGsfCleaning = cms.bool(False)                     
+    debugGsfCleaning = cms.bool(False),
+# switch for re-reco on AOD inputs
+	runOnAOD = cms.bool(False)
+	
 )
 
 
