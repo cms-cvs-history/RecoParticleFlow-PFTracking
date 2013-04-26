@@ -7,7 +7,7 @@ from RecoParticleFlow.PFTracking.pfConversions_cfi import *
 from RecoParticleFlow.PFTracking.pfV0_cfi import *
 from RecoParticleFlow.PFTracking.particleFlowDisplacedVertexCandidate_cff import *
 from RecoParticleFlow.PFTracking.particleFlowDisplacedVertex_cff import *
-
+from RecoParticleFlow.PFTracking.convBremGsfTrackMap_cfi import *
 
 
 particleFlowTrackWithDisplacedVertex =cms.Sequence(
@@ -17,6 +17,7 @@ particleFlowTrackWithDisplacedVertex =cms.Sequence(
     particleFlowDisplacedVertexCandidate*
     particleFlowDisplacedVertex*
     pfDisplacedTrackerVertex*
+    convBremGsfTrackMap*
     pfTrackElec
     )
 
