@@ -16,7 +16,6 @@
 #include "RecoParticleFlow/PFClusterTools/interface/LinkByRecHit.h"
 #include "RecoParticleFlow/PFClusterTools/interface/LinkByDetId.h"
 
-
 using namespace edm;
 using namespace std;
 using namespace reco;
