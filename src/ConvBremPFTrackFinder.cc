@@ -14,7 +14,6 @@
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 #include "TMath.h"
 #include "RecoParticleFlow/PFClusterTools/interface/LinkByRecHit.h"
-#include "RecoParticleFlow/PFClusterTools/interface/LinkByDetId.h"
 
 using namespace edm;
 using namespace std;
@@ -22,12 +21,10 @@ using namespace reco;
 
 ConvBremPFTrackFinder::ConvBremPFTrackFinder(const TransientTrackBuilder& builder,
 					     double mvaBremConvCut,
-					     string mvaWeightFileConvBrem,
-						   const CaloGeometry* caloGeo):
+					     string mvaWeightFileConvBrem):
   builder_(builder),
   mvaBremConvCut_(mvaBremConvCut),
-  mvaWeightFileConvBrem_(mvaWeightFileConvBrem),
-  caloGeometry_(caloGeo)
+  mvaWeightFileConvBrem_(mvaWeightFileConvBrem)
 {
   tmvaReader_ = new TMVA::Reader("!Color:Silent");
   tmvaReader_->AddVariable("secR",&secR);
@@ -300,16 +297,8 @@ ConvBremPFTrackFinder::runConvBremFinder(const Handle<PFRecTrackCollection>& the
 	double dist = -1.;
 	PFCluster clust = *clus;
 	clust.calculatePositionREP();
-  
-  if (pfrectrack.extrapolatedPoint( reco::PFTrajectoryPoint::ECALShowerMax ).isValid()) {
-    dist =  (caloGeometry_ == 0)? 
-      LinkByRecHit::testTrackAndClusterByRecHit(pfrectrack , clust ) :
-      LinkByDetId::testTrackAndClusterByDetId(pfrectrack , clust, caloGeometry_ );
-  }
-//	dist =  pfrectrack.extrapolatedPoint( reco::PFTrajectoryPoint::ECALShowerMax ).isValid() ?
-//	  // make a switch for AOD (AA)
-//	LinkByRecHit::testTrackAndClusterByRecHit(pfrectrack , clust ) : -1.;
-// //	LinkByDetId::testTrackAndClusterByDetId(pfrectrack , clust, caloGeometry_ ) : -1.;
+	dist =  pfrectrack.extrapolatedPoint( reco::PFTrajectoryPoint::ECALShowerMax ).isValid() ?
+	  LinkByRecHit::testTrackAndClusterByRecHit(pfrectrack , clust ) : -1.;
 	
 	if(dist > 0.) {
 	  bool applyCrackCorrections = false;
