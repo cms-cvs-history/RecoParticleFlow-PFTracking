@@ -13,7 +13,7 @@
 /*!
 \author Daniele Benedetti
 \date April 2013
-  ConvBremGsfTrackMapProducer produce a multimap between KF tracks from converted brems and GSF track. 
+  ConvBremGsfTrackMapProducer produces a map between KF tracks from converted brems and GSF track. 
 */
 
 
@@ -33,7 +33,7 @@ private:
   virtual void beginRun(edm::Run&,const edm::EventSetup&) ;
   virtual void endRun() ;
   
-  ///Produce the Track collection: dummy
+  ///Produce the Track collection
   virtual void produce(edm::Event&, const edm::EventSetup&);
   
 
@@ -46,11 +46,11 @@ private:
   /// track quality
   bool useQuality_;
   reco::TrackBase::TrackQuality trackQuality_;
+
   /// Conv Brem Finder
   bool useConvBremFinder_;
   double mvaConvBremFinderID_;
   std::string path_mvaWeightFileConvBrem_;
-
 
   /// Transformers  
   PFTrackTransformer *pfTransformer_; 

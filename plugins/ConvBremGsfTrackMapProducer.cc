@@ -15,6 +15,9 @@
 #include "RecoParticleFlow/PFTracking/interface/ConvBremTrackFinder.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
+// the new map of gsftracks to brem cconv tracks stored in the event (AA)
+#include "DataFormats/EgammaTrackReco/interface/GsfTrackToBremConvTracksMapFwd.h"
+
 using namespace std;
 using namespace edm;
 using namespace reco;
@@ -22,7 +25,7 @@ ConvBremGsfTrackMapProducer::ConvBremGsfTrackMapProducer(const ParameterSet& iCo
   pfTransformer_(0),
   convBremTrackFinder_(0)
 {
-  produces<reco::TrackCollection>();
+  produces<reco::GsfTrackToBremConvTracksMap>();
   
   trackCollection_ = iConfig.getParameter<InputTag>
     ("TrackCollection");
@@ -71,14 +74,13 @@ ConvBremGsfTrackMapProducer::produce(Event& iEvent, const EventSetup& iSetup)
   
   bool debug = false;
 
-  //Create the empty collections: Dummy 
-  auto_ptr< reco::TrackCollection > 
-    PfTrColl (new reco::TrackCollection);
-
-  
+  // Crate a collection to hold the GSF track - conv brem track association
+   auto_ptr< reco::GsfTrackToBremConvTracksMap > 
+   gsfTrackToConvTracksMap(new reco::GsfTrackToBremConvTracksMap);
+ 
    Handle<reco::TrackCollection> theTrackCollection;
    iEvent.getByLabel("generalTracks", theTrackCollection);
-  
+ 
   //read track collection
   Handle<GsfTrackCollection> gsftrackcoll;
   iEvent.getByLabel(gsfTrackLabel_,gsftrackcoll);
@@ -95,39 +97,37 @@ ConvBremGsfTrackMapProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
   if(debug)
     cout << " ######## ConvBremGsfTrackMaptProdcuer:Entering  " << endl;
-  
+
   for (unsigned int igsf=0; igsf<gsftracks.size();igsf++) {
     if(debug)
       cout << " Here My NEW GSF: pt " << gsftracks[igsf].ptMode() 
 	   << " eta,phi " << gsftracks[igsf].etaMode() << " phi " <<   gsftracks[igsf].phiMode() << endl; 
-    
-
 
     if(convBremTrackFinder_->foundConvBremTrack(theTrackCollection,
 						thePrimaryVertexColl,
 						theEcalClusters,
 						gsftracks[igsf])) {
       const vector<TrackRef>& convBremTracks(convBremTrackFinder_->getConvBremTracks());
-      for(unsigned int itk = 0; itk < convBremTracks.size(); itk++) {
-	if(debug)
-	  cout << " My ConvBremTrack " << convBremTracks[itk]->pt() 
-	       << " eta,phi " << convBremTracks[itk]->eta() << ", " << convBremTracks[itk]->phi() << endl;
-	
-	// Dummy 
-	PfTrColl->push_back((*convBremTracks[itk]));
-      }
-      if(debug)
-	cout << " ######## ConvBremGsfTrackMaptProdcuer:foundConvBremTrack  " << endl;
       
-    }
-    
-    // here if convBremTracks.size() > 0 push_back the pair<GsfTrackRef,<TrackRef>>
+    if(debug) 
+     cout << " ######## ConvBremGsfTrackMaptProdcuer:foundConvBremTrack  " << endl;
 
+     // Note that we make an entry in the map only when conv brem tracks were found
+     // When acessing the map one should check if there is a an entry for the particular gsftrack (AA)
+     for(unsigned int itk = 0; itk < convBremTracks.size(); itk++) {
+	      if (debug) cout << " My ConvBremTrack " << convBremTracks[itk]->pt() 
+	            << " eta,phi " << convBremTracks[itk]->eta() << ", " << convBremTracks[itk]->phi() << endl;
+
+        gsfTrackToConvTracksMap->insert(reco::GsfTrackRef(gsftrackcoll, igsf), convBremTracks[itk]);
+     }
+  
+    }
 
   } // end loop on the GSF track
+  
+ // out the map in the event
+ iEvent.put(gsfTrackToConvTracksMap);
 
-  // Dummy put in the event the Pair
-  iEvent.put(PfTrColl);
 }
 
 // ------------ method called once each job just before starting event loop  ------------

@@ -14,7 +14,8 @@
 // user include files
 #include "RecoParticleFlow/PFTracking/interface/PFElecTkProducer.h"
 #include "RecoParticleFlow/PFTracking/interface/PFTrackTransformer.h"
-#include "RecoParticleFlow/PFTracking/interface/ConvBremPFTrackFinder.h"
+// not needed when we save gsf- conv map (AA)
+//#include "RecoParticleFlow/PFTracking/interface/ConvBremPFTrackFinder.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -56,8 +57,9 @@ using namespace edm;
 using namespace reco;
 PFElecTkProducer::PFElecTkProducer(const ParameterSet& iConfig):
   conf_(iConfig),
-  pfTransformer_(0),
-  convBremFinder_(0)
+  pfTransformer_(0)
+// not needed when we save gsf- conv map (AA)
+//  convBremFinder_(0)
 {
   LogInfo("PFElecTkProducer")<<"PFElecTkProducer started";
 
@@ -82,6 +84,10 @@ PFElecTkProducer::PFElecTkProducer(const ParameterSet& iConfig):
   pfV0_ = iConfig.getParameter<InputTag>
     ("PFV0");
 
+// the new map (AA)
+  gsfTrackToBremConvTracksMapTag_ = iConfig.getParameter<InputTag>
+    ("GsfTrackToBremConvTracksMapTag");
+
   useNuclear_ = iConfig.getParameter<bool>("useNuclear");
   useConversions_ = iConfig.getParameter<bool>("useConversions");
   useV0_ = iConfig.getParameter<bool>("useV0");
@@ -100,14 +106,16 @@ PFElecTkProducer::PFElecTkProducer(const ParameterSet& iConfig):
   dphiCutGsfClean_ =  iConfig.getParameter<double>("maxDPhiBremTangGsfAngularCleaning");
   useFifthStepForTrackDriven_ = iConfig.getParameter<bool>("useFifthStepForTrackerDrivenGsf");
   useFifthStepForEcalDriven_ = iConfig.getParameter<bool>("useFifthStepForEcalDrivenGsf");
-  maxPtConvReco_ = iConfig.getParameter<double>("MaxConvBremRecoPT");
+  maxPtConvReco_ = iConfig.getParameter<double>("MaxConvBremRecoPT"); // does not seem to be used anywhere (AA)
   detaGsfSC_ = iConfig.getParameter<double>("MinDEtaGsfSC");
   dphiGsfSC_ = iConfig.getParameter<double>("MinDPhiGsfSC");
   SCEne_ = iConfig.getParameter<double>("MinSCEnergy");
   
   // flag for running on AOD inputs (AA)
   runOnAOD_ = iConfig.getParameter<bool>("runOnAOD");
-
+  
+// not needed when we save gsf- conv map (AA)
+/*
   // set parameter for convBremFinder
   useConvBremFinder_ =     iConfig.getParameter<bool>("useConvBremFinder");
   mvaConvBremFinderID_
@@ -118,6 +126,7 @@ PFElecTkProducer::PFElecTkProducer(const ParameterSet& iConfig):
   
   if(useConvBremFinder_) 
     path_mvaWeightFileConvBrem_ = edm::FileInPath ( mvaWeightFileConvBrem.c_str() ).fullPath();
+*/
 
 }
 
@@ -126,7 +135,8 @@ PFElecTkProducer::~PFElecTkProducer()
 {
  
   delete pfTransformer_;
-  delete convBremFinder_;
+// not needed when we save gsf- conv map (AA)
+//  delete convBremFinder_;
 }
 
 
@@ -171,6 +181,9 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
   iEvent.getByLabel(primVtxLabel_,thePrimaryVertexColl);
 
 
+  // Map of gsftrack to conv brem tracks (AA)
+  Handle<reco::GsfTrackToBremConvTracksMap> theGsfTrackToBremConvTracksMap;
+  iEvent.getByLabel(gsfTrackToBremConvTracksMapTag_, theGsfTrackToBremConvTracksMap);
 
   // Displaced Vertex
   Handle< reco::PFDisplacedTrackerVertexCollection > pfNuclears; 
@@ -228,11 +241,6 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
   for (unsigned int igsf=0; igsf<gsftracks.size();igsf++) {
 
     GsfTrackRef trackRef(gsftrackscoll, igsf);
-
-//    int kf_ind=FindPfRef(PfRTkColl,gsftracks[igsf],false);
-
-//    if (kf_ind>=0) {
-
 
     reco::TrackRef ctfTkRef;
 
@@ -344,6 +352,7 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
       if(keepGsf == true) {
 
 	// Find kf tracks from converted brem photons
+ /* 
 	if(convBremFinder_->foundConvBremPFRecTrack(thePfRecTrackCollection,thePrimaryVertexColl,
 						    pfNuclears,pfConversions,pfV0,
 						    useNuclear_,useConversions_,useV0_,
@@ -352,8 +361,38 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	  for(unsigned int ii = 0; ii<convBremPFRecTracks.size(); ii++) {
 	    selGsfPFRecTracks[ipfgsf].addConvBremPFRecTrackRef(convBremPFRecTracks[ii]);
 	  }
-	}
+ */ 
+ 
+ // This replaces the conversion finding procedure
+ // The gsfTrack-conv tracks map is alrady created and stored in the event
+ // NB: Need to filter the associations and to vconvert to "PF" types as needed (AA)
   
+ 
+ 
+//    const std::vector<reco::TrackRef>& convTrkRefVector = theGsfTrackToBremConvTracksMap[gsfTrkRef];
+//    const std::vector<reco::TrackRef>::const_iterator convTrkRefVector_it = theGsfTrackToBremConvTracksMap->find(gsfTrkRef);
+//    if (convTrkRefVector_it != theGsfTrackToBremConvTracksMap->end()) {
+
+
+    const reco::GsfTrackRef gsfTrkRef = selGsfPFRecTracks[ipfgsf].gsfTrackRef();
+    
+    if (theGsfTrackToBremConvTracksMap->find(gsfTrkRef) != theGsfTrackToBremConvTracksMap->end()) {
+      const edm::RefVector<std::vector<reco::Track> >& convTrkRefVector = (*theGsfTrackToBremConvTracksMap)[gsfTrkRef];
+      
+      // tmp debug print
+//      for (RefVector<std::vector<reco::Track> >::iterator it = convTrkRefVector.begin();
+//           it!=convTrkRefVector.end(); ++it) {
+//           std::cout << "\nconv track eta: " << (*it)->eta() << std::endl;
+//      }
+      
+       const std::vector<reco::PFRecTrackRef> convBremPFRecTracks = trkRefVecToPFTrkRefVec(convTrkRefVector, thePfRecTrackCollection);
+       
+       for (unsigned int ii = 0; ii<convBremPFRecTracks.size(); ++ii) {
+         selGsfPFRecTracks[ipfgsf].addConvBremPFRecTrackRef(convBremPFRecTracks[ii]);
+      }
+
+    }
+
 	// save primaries gsf tracks
 	//	gsfPFRecTrackCollection->push_back(selGsfPFRecTracks[ipfgsf]);
 	primaryGsfPFRecTracks.push_back(selGsfPFRecTracks[ipfgsf]);
@@ -1263,6 +1302,54 @@ bool PFElecTkProducer::isInnerMostWithLostHits(const reco::GsfTrackRef& nGsfTrac
 }
 
 
+// helper method to change the format (AA)
+// const std::vector<PFRecTrackRef> PFElecTkProducer::trkRefVecToPFTrkRefVec(const std::vector<reco::TrackRef>& convTrkRefVector) {
+const std::vector<PFRecTrackRef> PFElecTkProducer::trkRefVecToPFTrkRefVec(const edm::RefVector<std::vector<reco::Track> >& convTrkRefVector,
+                                                                          edm::Handle<reco::PFRecTrackCollection>& thePfRecTrackCollection) {
+   
+   // later modify this method to avoid copying (AA)
+   std::vector<reco::PFRecTrackRef> pfTracks;
+   
+   // PFRecTracks correspond to a subset of the Tracks with unchanged ordering, so
+   // the index of a PFRecTrack canot be higher than the one of the corresponding Track 
+   // Also, the vectors of converted brem tracks are filled while looping over the 
+   // track collection. Take advantage of these constraints to limit unnecessary looping. (AA)
+   
+   // reduce search range for subsequent tracks
+   edm::Ref<reco::TrackCollection>::key_type lowerSearchInd = 0; 
+   edm::RefVector<std::vector<reco::Track> >::const_iterator it = convTrkRefVector.begin();
+   
+   for (; it != convTrkRefVector.end(); ++it) {
+
+      const reco::TrackRef& track = *it;
+
+     // skip tracks that do not pass the quality requirements for PFTracks - 
+     // make this more robust wrt changes in the criteria.
+     // We should be able to get the quality set in the PFTrackProducer and not use the
+     // hotwired value below.
+     // Alternatively, we can skip the check and rely on the lack of matched PF track to 
+     // remove these tracks (wastes some CPU cycles but avoid discrepancy in quality criteria.
+     // Need to benchmark (AA).
+     if (!track->qualityByName("highPurity")) continue;
+
+     edm::Ref<reco::TrackCollection>::key_type i = track.key(); // this is the upper search index
+
+     for (; i >= lowerSearchInd; --i) {  
+//     for (unsigned int i=0; i<thePfRecTrackCollection->size() ; ++i) { // brute force: loop over all tracks for testing
+        reco::PFRecTrackRef pfRecTrack(thePfRecTrackCollection, i);
+        if (track == pfRecTrack->trackRef()) {
+           pfTracks.push_back(pfRecTrack);
+           lowerSearchInd = i+1;
+           break;
+        }
+     }
+
+   } // loop over trackRefs in the brem conv vector
+
+   return pfTracks;
+
+}
+
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
@@ -1285,12 +1372,13 @@ PFElecTkProducer::beginRun(const edm::Run& run,
   
   pfTransformer_= new PFTrackTransformer(math::XYZVector(magneticField->inTesla(GlobalPoint(0,0,0))));
   
-  
+
+// not needed when we save gsf- conv map (AA)
+/*
   edm::ESHandle<TransientTrackBuilder> builder;
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);
   TransientTrackBuilder thebuilder = *(builder.product());
   
-
   if(useConvBremFinder_) {
     FILE * fileConvBremID = fopen(path_mvaWeightFileConvBrem_.c_str(), "r");
     if (fileConvBremID) {
@@ -1304,6 +1392,7 @@ PFElecTkProducer::beginRun(const edm::Run& run,
     }
   }
   convBremFinder_ = new ConvBremPFTrackFinder(thebuilder,mvaConvBremFinderID_,path_mvaWeightFileConvBrem_, caloGeometry_);
+*/
 
 }
 
