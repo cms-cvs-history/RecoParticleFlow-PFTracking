@@ -6,8 +6,6 @@
 // Original Author:  Michele Pioppi
 //         Created:  Tue Jan 23 15:26:39 CET 2007
 
-
-
 // system include files
 #include <memory>
 
@@ -134,7 +132,12 @@ PFElecTkProducer::PFElecTkProducer(const ParameterSet& iConfig):
 PFElecTkProducer::~PFElecTkProducer()
 {
  
-  delete pfTransformer_;
+ // this is a second delete (after the one in end run!). 
+ // Looks like it was not causing problems till I added a new collection...
+ // Delete only if it is nonnull... keep it in case the code does not go to 
+ // endRun() for some reason (AA) 
+ if (pfTransformer_!=nullptr) delete pfTransformer_;
+
 // not needed when we save gsf- conv map (AA)
 //  delete convBremFinder_;
 }
@@ -1304,8 +1307,9 @@ bool PFElecTkProducer::isInnerMostWithLostHits(const reco::GsfTrackRef& nGsfTrac
 
 // helper method to change the format (AA)
 // const std::vector<PFRecTrackRef> PFElecTkProducer::trkRefVecToPFTrkRefVec(const std::vector<reco::TrackRef>& convTrkRefVector) {
-const std::vector<PFRecTrackRef> PFElecTkProducer::trkRefVecToPFTrkRefVec(const edm::RefVector<std::vector<reco::Track> >& convTrkRefVector,
-                                                                          edm::Handle<reco::PFRecTrackCollection>& thePfRecTrackCollection) {
+
+const std::vector<PFRecTrackRef> PFElecTkProducer::trkRefVecToPFTrkRefVec(const edm::RefVector<std::vector<reco::Track> >& convTrkRefVector, 
+edm::Handle<reco::PFRecTrackCollection>& thePfRecTrackCollection) {
    
    // later modify this method to avoid copying (AA)
    std::vector<reco::PFRecTrackRef> pfTracks;
@@ -1351,7 +1355,7 @@ const std::vector<PFRecTrackRef> PFElecTkProducer::trkRefVecToPFTrkRefVec(const 
 }
 
 
-// ------------ method called once each job just before starting event loop  ------------
+// ------------ method called once each run just before starting event loop  ------------
 void 
 PFElecTkProducer::beginRun(const edm::Run& run,
 			   const EventSetup& iSetup)
@@ -1396,11 +1400,12 @@ PFElecTkProducer::beginRun(const edm::Run& run,
 
 }
 
-// ------------ method called once each job just after ending the event loop  ------------
+// ------------ method called once each run just after ending the event loop  ------------
 void 
 PFElecTkProducer::endRun(const edm::Run& run,
          const EventSetup& iSetup) {
   delete pfTransformer_;
+//  pfTransformer_=nullptr;
 }
 
 //define this as a plug-in
