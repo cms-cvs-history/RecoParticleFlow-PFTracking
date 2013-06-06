@@ -1337,6 +1337,7 @@ edm::Handle<reco::PFRecTrackCollection>& thePfRecTrackCollection) {
      if (!track->qualityByName("highPurity")) continue;
 
      edm::Ref<reco::TrackCollection>::key_type i = track.key(); // this is the upper search index
+     if (i >= thePfTrackCollection->size()) i = thePfTrackCollection->size() - 1; 
 
      for (; i >= lowerSearchInd; --i) {  
 //     for (unsigned int i=0; i<thePfRecTrackCollection->size() ; ++i) { // brute force: loop over all tracks for testing
